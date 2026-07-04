@@ -1,3 +1,33 @@
+from models.vehicle import Vehicle
+
+def register_vehicle():
+    """
+    Solicita al usuario los datos de un vehículo y crea un objeto Vehicle.
+    """
+
+    print("\n===== Registrar vehículo =====")
+
+    brand = input("Marca: ")
+    model = input("Modelo: ")
+    year = int(input("Año: "))
+    license_plate = input("Matrícula: ")
+    kilometers = int(input("Kilómetros: "))
+
+    vehicle = Vehicle(
+        brand,
+        model,
+        year,
+        license_plate,
+        kilometers
+    )
+
+    print("\n Vehículo registrado correctamente.")
+    print(f"Marca: {vehicle.brand}")
+    print(f"Modelo: {vehicle.model}")
+    print(f"Año: {vehicle.year}")
+    print(f"Matrícula: {vehicle.license_plate}")
+    print(f"Kilómetros: {vehicle.kilometers} km")
+
 def show_menu():
     print("\n===== AutoCare =====")
     print("1. Registrar vehículo")
@@ -13,7 +43,7 @@ def main():
         option = input("Elige una opción: ")
 
         if option == "1":
-            print("Has elegido registrar vehículo")
+            register_vehicle()
         elif option == "2":
             print("Has elegido ver vehículos")
         elif option == "3":
