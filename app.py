@@ -1,4 +1,5 @@
 from models.vehicle import Vehicle
+from models.maintenance import Maintenance
 vehicles = []
 
 def register_vehicle():
@@ -114,6 +115,88 @@ def edit_vehicle():
     except ValueError:
         print("Debes introducir un número válido.")
 
+def register_maintenance():
+    """
+    Registra un mantenimiento para un vehículo.
+    """
+
+    if not vehicles:
+        print("\nNo hay vehículos registrados.")
+        return
+
+    show_vehicles()
+
+    try:
+        vehicle_number = int(input("\nSelecciona el vehículo: "))
+        index = vehicle_number - 1
+
+        if index < 0 or index >= len(vehicles):
+            print("Número de vehículo no válido.")
+            return
+
+        vehicle = vehicles[index]
+
+        print("\n===== Registrar mantenimiento =====")
+
+        maintenance_type = input("Tipo de mantenimiento: ")
+        date = input("Fecha (dd/mm/aaaa): ")
+        kilometers = int(input("Kilómetros: "))
+        cost = float(input("Coste (€): "))
+        notes = input("Observaciones: ")
+
+        maintenance = Maintenance(
+            maintenance_type,
+            date,
+            kilometers,
+            cost,
+            notes
+        )
+
+        vehicle.maintenances.append(maintenance)
+
+        print("\nMantenimiento registrado correctamente.")
+
+    except ValueError:
+        print("Debes introducir un valor válido.")
+
+def show_maintenance_history():
+    """
+    Muestra el historial de mantenimientos de un vehículo.
+    """
+
+    if not vehicles:
+        print("\nNo hay vehículos registrados.")
+        return
+
+    show_vehicles()
+
+    try:
+        vehicle_number = int(input("\nSelecciona el vehículo: "))
+        index = vehicle_number - 1
+
+        if index < 0 or index >= len(vehicles):
+            print("Número de vehículo no válido.")
+            return
+
+        vehicle = vehicles[index]
+
+        if not vehicle.maintenances:
+            print("\nEste vehículo no tiene mantenimientos registrados.")
+            return
+
+        print(f"\n===== Historial de {vehicle.brand} {vehicle.model} =====")
+
+        for i, maintenance in enumerate(vehicle.maintenances, start=1):
+            print(f"\nMantenimiento {i}")
+            print(f"Tipo: {maintenance.maintenance_type}")
+            print(f"Fecha: {maintenance.date}")
+            print(f"Kilómetros: {maintenance.kilometers} km")
+            print(f"Coste: {maintenance.cost:.2f} €")
+            print(f"Observaciones: {maintenance.notes}")
+
+    except ValueError:
+        print("Debes introducir un número válido.")
+
 def main():
     while True:
         show_menu()
@@ -124,9 +207,9 @@ def main():
         elif option == "2":
             show_vehicles()
         elif option == "3":
-            print("Has elegido registrar mantenimiento")
+            register_maintenance()
         elif option == "4":
-            print("Has elegido ver historial")
+            show_maintenance_history()
         elif option == "5":
             edit_vehicle()
         elif option == "6":
