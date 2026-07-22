@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from models.vehicle import Vehicle
 from models.maintenance import Maintenance
 
@@ -97,7 +98,10 @@ def show_menu():
     print("10. Estadísticas de un vehículo")
     print("11. Buscar vehículo por matrícula")
     print("----------------------------")
-    print("12. Salir")
+    print("12. Estado cambio de aceite")
+    print("13. Estado ITV")
+    print("----------------------------")
+    print("14. Salir")
 
 def edit_vehicle():
     """
@@ -142,7 +146,7 @@ def edit_vehicle():
         if new_kilometers != "":
             vehicle.kilometers = int(new_kilometers)
 
-        print("\n✅ Vehículo actualizado correctamente.")
+        print("\nVehículo actualizado correctamente.")
 
     except ValueError:
         print("Debes introducir un número válido.")
@@ -556,6 +560,142 @@ def show_vehicle_statistics():
     except ValueError:
         print("Debes introducir un número válido.")
 
+def oil_change_reminder():
+    """
+    Comprueba si un vehículo necesita un cambio de aceite.
+    El aviso se genera si han pasado más de 10.000 km
+    o más de un año desde el último cambio.
+    """
+
+    if not vehicles:
+        print("\nNo hay vehículos registrados.")
+        return
+
+    show_vehicles()
+
+    try:
+        vehicle_number = int(input("\nSelecciona un vehículo: "))
+        index = vehicle_number - 1
+
+        if index < 0 or index >= len(vehicles):
+            print("Número de vehículo no válido.")
+            return
+
+        vehicle = vehicles[index]
+
+        last_oil_change = None
+
+        # Buscar el último cambio de aceite
+        for maintenance in reversed(vehicle.maintenances):
+            if maintenance.maintenance_type == "Cambio de aceite":
+                last_oil_change = maintenance
+                break
+
+        if last_oil_change is None:
+            print("\nEste vehículo no tiene registrado ningún cambio de aceite.")
+            return
+
+        # Calcular kilómetros recorridos
+        kilometers_since = vehicle.kilometers - last_oil_change.kilometers
+
+        # Calcular tiempo transcurrido
+        last_date = datetime.strptime(last_oil_change.date, "%d/%m/%Y")
+        today = datetime.today()
+
+        days_since = (today - last_date).days
+
+        print("\n===== Aviso de cambio de aceite =====")
+        print(f"Vehículo: {vehicle.brand} {vehicle.model}")
+        print(f"Último cambio: {last_oil_change.date}")
+        print(f"Kilómetros del cambio: {last_oil_change.kilometers} km")
+        print(f"Kilómetros actuales: {vehicle.kilometers} km")
+        print(f"Kilómetros recorridos: {kilometers_since} km")
+        print(f"Días transcurridos: {days_since}")
+
+        print("\nEstado:")
+
+        if kilometers_since >= 10000 and days_since >= 365:
+            print("Cambio de aceite URGENTE.")
+            print("Motivos:")
+            print("- Han pasado más de 10.000 km.")
+            print("- Ha pasado más de un año.")
+
+        elif kilometers_since >= 10000:
+            print("Debes cambiar el aceite.")
+            print("Motivo: Han pasado más de 10.000 km.")
+
+        elif days_since >= 365:
+            print("Debes cambiar el aceite.")
+            print("Motivo: Ha pasado más de un año.")
+
+        else:
+            remaining_km = 10000 - kilometers_since
+            remaining_days = 365 - days_since
+
+            print("El cambio de aceite no es necesario todavía.")
+            print(f"Quedan aproximadamente {remaining_km} km.")
+            print(f"Quedan aproximadamente {remaining_days} días.")
+
+    except ValueError:
+        print("Debes introducir un valor válido.")
+
+def itv_reminder():
+    """
+    Comprueba si la ITV está próxima a caducar o ya ha caducado.
+    """
+
+    if not vehicles:
+        print("\nNo hay vehículos registrados.")
+        return
+
+    show_vehicles()
+
+    try:
+        vehicle_number = int(input("\nSelecciona un vehículo: "))
+        index = vehicle_number - 1
+
+        if index < 0 or index >= len(vehicles):
+            print("Número de vehículo no válido.")
+            return
+
+        vehicle = vehicles[index]
+
+        last_itv = None
+
+        # Buscar la última ITV registrada
+        for maintenance in reversed(vehicle.maintenances):
+            if maintenance.maintenance_type == "ITV":
+                last_itv = maintenance
+                break
+
+        if last_itv is None:
+            print("\nEste vehículo no tiene ninguna ITV registrada.")
+            return
+
+        last_date = datetime.strptime(last_itv.date, "%d/%m/%Y")
+        next_itv = last_date + timedelta(days=365)
+
+        today = datetime.today()
+        remaining_days = (next_itv - today).days
+
+        print("\n===== Aviso ITV =====")
+        print(f"Vehículo: {vehicle.brand} {vehicle.model}")
+        print(f"Última ITV: {last_itv.date}")
+        print(f"Próxima ITV: {next_itv.strftime('%d/%m/%Y')}")
+
+        if remaining_days < 0:
+            print(f"\nLa ITV ha caducado hace {-remaining_days} días.")
+
+        elif remaining_days <= 30:
+            print(f"\nLa ITV caduca en {remaining_days} días.")
+
+        else:
+            print(f"\nLa ITV está en vigor.")
+            print(f"Quedan {remaining_days} días.")
+            
+    except ValueError:
+        print("Debes introducir un valor válido.")
+
 def main():
     while True:
         show_menu()
@@ -595,6 +735,12 @@ def main():
             search_vehicle_by_license_plate()
 
         elif option == "12":
+            oil_change_reminder()
+        
+        elif option == "13":
+            itv_reminder()
+
+        elif option == "14":
             print("Saliendo de AutoCare...")
             break
 
