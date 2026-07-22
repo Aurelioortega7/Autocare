@@ -1,6 +1,16 @@
 from models.vehicle import Vehicle
 from models.maintenance import Maintenance
+
 vehicles = []
+MAINTENANCE_TYPES = [
+    "Cambio de aceite",
+    "ITV",
+    "Frenos",
+    "Neumáticos",
+    "Batería",
+    "Filtros",
+    "Otro"
+]
 
 def register_vehicle():
     """
@@ -112,13 +122,27 @@ def edit_vehicle():
 
         print("\n===== Editar vehículo =====")
 
-        vehicle.brand = input("Nueva marca: ")
-        vehicle.model = input("Nuevo modelo: ")
-        vehicle.year = int(input("Nuevo año: "))
-        vehicle.license_plate = input("Nueva matrícula: ")
-        vehicle.kilometers = int(input("Nuevos kilómetros: "))
+        new_brand = input(f"Nueva marca [{vehicle.brand}]: ")
+        if new_brand != "":
+            vehicle.brand = new_brand
 
-        print("\nVehículo actualizado correctamente.")
+        new_model = input(f"Nuevo modelo [{vehicle.model}]: ")
+        if new_model != "":
+            vehicle.model = new_model
+
+        new_year = input(f"Nuevo año [{vehicle.year}]: ")
+        if new_year != "":
+            vehicle.year = int(new_year)
+
+        new_license_plate = input(f"Nueva matrícula [{vehicle.license_plate}]: ")
+        if new_license_plate != "":
+            vehicle.license_plate = new_license_plate
+
+        new_kilometers = input(f"Nuevos kilómetros [{vehicle.kilometers}]: ")
+        if new_kilometers != "":
+            vehicle.kilometers = int(new_kilometers)
+
+        print("\n✅ Vehículo actualizado correctamente.")
 
     except ValueError:
         print("Debes introducir un número válido.")
@@ -146,7 +170,19 @@ def register_maintenance():
 
         print("\n===== Registrar mantenimiento =====")
 
-        maintenance_type = input("Tipo de mantenimiento: ")
+        print("\nTipos de mantenimiento:")
+
+        for i, maintenance_type in enumerate(MAINTENANCE_TYPES, start=1):
+            print(f"{i}. {maintenance_type}")
+
+        option = int(input("\nSelecciona un tipo de mantenimiento: "))
+
+        if option < 1 or option > len(MAINTENANCE_TYPES):
+            print("Opción no válida.")
+            return
+
+        maintenance_type = MAINTENANCE_TYPES[option - 1]
+
         date = input("Fecha (dd/mm/aaaa): ")
         kilometers = int(input("Kilómetros: "))
         cost = float(input("Coste (€): "))
@@ -159,6 +195,13 @@ def register_maintenance():
             cost,
             notes
         )
+
+        vehicle.maintenances.append(maintenance)
+
+        print("\nMantenimiento registrado correctamente.")
+
+    except ValueError:
+        print("Debes introducir un valor válido.")
 
         vehicle.maintenances.append(maintenance)
 
@@ -283,11 +326,40 @@ def edit_maintenance():
 
         print("\n===== Editar mantenimiento =====")
 
-        maintenance.maintenance_type = input("Nuevo tipo: ")
-        maintenance.date = input("Nueva fecha (dd/mm/aaaa): ")
-        maintenance.kilometers = int(input("Nuevos kilómetros: "))
-        maintenance.cost = float(input("Nuevo coste (€): "))
-        maintenance.notes = input("Nuevas observaciones: ")
+        print("\nTipos de mantenimiento:")
+        for i, maintenance_type in enumerate(MAINTENANCE_TYPES, start=1):
+            print(f"{i}. {maintenance_type}")
+
+        current_type = MAINTENANCE_TYPES.index(maintenance.maintenance_type) + 1
+
+        option = input(
+            f"\nSelecciona un tipo [{current_type} - {maintenance.maintenance_type}]: "
+        )
+
+        if option != "":
+            option = int(option)
+
+            if option < 1 or option > len(MAINTENANCE_TYPES):
+                print("Opción no válida.")
+                return
+
+            maintenance.maintenance_type = MAINTENANCE_TYPES[option - 1]
+
+        new_date = input(f"Nueva fecha [{maintenance.date}]: ")
+        if new_date != "":
+            maintenance.date = new_date
+
+        new_kilometers = input(f"Nuevos kilómetros [{maintenance.kilometers}]: ")
+        if new_kilometers != "":
+            maintenance.kilometers = int(new_kilometers)
+
+        new_cost = input(f"Nuevo coste (€) [{maintenance.cost}]: ")
+        if new_cost != "":
+            maintenance.cost = float(new_cost)
+
+        new_notes = input(f"Nuevas observaciones [{maintenance.notes}]: ")
+        if new_notes != "":
+            maintenance.notes = new_notes
 
         print("\nMantenimiento actualizado correctamente.")
 
