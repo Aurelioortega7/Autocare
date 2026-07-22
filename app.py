@@ -83,10 +83,11 @@ def show_menu():
     print("7. Editar mantenimiento")
     print("8. Eliminar mantenimiento")
     print("----------------------------")
-    print("9. Ver gasto total")
-    print("10. Buscar vehículo por matrícula")
+    print("9. Estadísticas generales")
+    print("10. Estadísticas de un vehículo")
+    print("11. Buscar vehículo por matrícula")
     print("----------------------------")
-    print("11. Salir")
+    print("12. Salir")
 
 def edit_vehicle():
     """
@@ -367,6 +368,122 @@ def search_vehicle_by_license_plate():
 
     print("\nNo se ha encontrado ningún vehículo con esa matrícula.")
 
+def show_statistics():
+    """
+    Muestra estadísticas generales de AutoCare.
+    """
+
+    if not vehicles:
+        print("\nNo hay vehículos registrados.")
+        return
+
+    total_vehicles = len(vehicles)
+    total_maintenances = 0
+    total_cost = 0
+
+    vehicle_with_most_maintenances = None
+    max_maintenances = 0
+
+    vehicle_with_highest_cost = None
+    highest_cost = 0
+
+    for vehicle in vehicles:
+
+        maintenances = len(vehicle.maintenances)
+        total_maintenances += maintenances
+
+        vehicle_cost = 0
+
+        for maintenance in vehicle.maintenances:
+            vehicle_cost += maintenance.cost
+
+        total_cost += vehicle_cost
+
+        if maintenances > max_maintenances:
+            max_maintenances = maintenances
+            vehicle_with_most_maintenances = vehicle
+
+        if vehicle_cost > highest_cost:
+            highest_cost = vehicle_cost
+            vehicle_with_highest_cost = vehicle
+
+    average_cost = total_cost / total_vehicles
+
+    print("\n===== Estadísticas generales =====")
+    print(f"Vehículos registrados: {total_vehicles}")
+    print(f"Mantenimientos registrados: {total_maintenances}")
+    print(f"Gasto total: {total_cost:.2f} €")
+    print(f"Gasto medio por vehículo: {average_cost:.2f} €")
+
+    if vehicle_with_most_maintenances:
+        print(
+            f"Vehículo con más mantenimientos: "
+            f"{vehicle_with_most_maintenances.brand} "
+            f"{vehicle_with_most_maintenances.model}"
+        )
+
+    if vehicle_with_highest_cost:
+        print(
+            f"Vehículo con mayor gasto: "
+            f"{vehicle_with_highest_cost.brand} "
+            f"{vehicle_with_highest_cost.model}"
+        )
+
+def show_vehicle_statistics():
+    """
+    Muestra estadísticas de un vehículo.
+    """
+
+    if not vehicles:
+        print("\nNo hay vehículos registrados.")
+        return
+
+    show_vehicles()
+
+    try:
+
+        vehicle_number = int(input("\nSelecciona un vehículo: "))
+        vehicle_index = vehicle_number - 1
+
+        if vehicle_index < 0 or vehicle_index >= len(vehicles):
+            print("Número de vehículo no válido.")
+            return
+
+        vehicle = vehicles[vehicle_index]
+
+        total_cost = 0
+
+        for maintenance in vehicle.maintenances:
+            total_cost += maintenance.cost
+
+        total_maintenances = len(vehicle.maintenances)
+
+        average_cost = 0
+
+        if total_maintenances > 0:
+            average_cost = total_cost / total_maintenances
+
+        print("\n===== Estadísticas del vehículo =====")
+        print(f"Marca: {vehicle.brand}")
+        print(f"Modelo: {vehicle.model}")
+        print(f"Año: {vehicle.year}")
+        print(f"Matrícula: {vehicle.license_plate}")
+        print(f"Kilómetros: {vehicle.kilometers} km")
+        print(f"Mantenimientos: {total_maintenances}")
+        print(f"Gasto total: {total_cost:.2f} €")
+        print(f"Coste medio: {average_cost:.2f} €")
+
+        if total_maintenances > 0:
+            last = vehicle.maintenances[-1]
+
+            print("\nÚltimo mantenimiento")
+            print(f"Tipo: {last.maintenance_type}")
+            print(f"Fecha: {last.date}")
+            print(f"Coste: {last.cost:.2f} €")
+
+    except ValueError:
+        print("Debes introducir un número válido.")
+
 def main():
     while True:
         show_menu()
@@ -397,12 +514,15 @@ def main():
             delete_maintenance()
 
         elif option == "9":
-            show_total_cost()
+            show_statistics()
 
         elif option == "10":
-            search_vehicle_by_license_plate()
+            show_vehicle_statistics()
 
         elif option == "11":
+            search_vehicle_by_license_plate()
+
+        elif option == "12":
             print("Saliendo de AutoCare...")
             break
 
