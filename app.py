@@ -82,9 +82,11 @@ def show_menu():
     print("6. Ver historial de mantenimientos")
     print("7. Editar mantenimiento")
     print("8. Eliminar mantenimiento")
-    print("9. Ver gasto total")
     print("----------------------------")
-    print("10. Salir")
+    print("9. Ver gasto total")
+    print("10. Buscar vehículo por matrícula")
+    print("----------------------------")
+    print("11. Salir")
 
 def edit_vehicle():
     """
@@ -339,6 +341,32 @@ def delete_maintenance():
     except ValueError:
         print("Debes introducir un valor válido.")
 
+def search_vehicle_by_license_plate():
+    """
+    Busca un vehículo por su matrícula.
+    """
+
+    if not vehicles:
+        print("\nNo hay vehículos registrados.")
+        return
+
+    license_plate = input("\nIntroduce la matrícula: ").strip().upper()
+
+    for vehicle in vehicles:
+        if vehicle.license_plate.upper() == license_plate:
+
+            print("\n===== Vehículo encontrado =====")
+            print(f"Marca: {vehicle.brand}")
+            print(f"Modelo: {vehicle.model}")
+            print(f"Año: {vehicle.year}")
+            print(f"Matrícula: {vehicle.license_plate}")
+            print(f"Kilómetros: {vehicle.kilometers} km")
+            print(f"Mantenimientos registrados: {len(vehicle.maintenances)}")
+
+            return
+
+    print("\nNo se ha encontrado ningún vehículo con esa matrícula.")
+
 def main():
     while True:
         show_menu()
@@ -372,6 +400,9 @@ def main():
             show_total_cost()
 
         elif option == "10":
+            search_vehicle_by_license_plate()
+
+        elif option == "11":
             print("Saliendo de AutoCare...")
             break
 
