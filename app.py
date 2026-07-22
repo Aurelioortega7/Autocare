@@ -73,13 +73,14 @@ def delete_vehicle():
 
 def show_menu():
     print("\n===== AutoCare =====")
-    print("1. Registrar vehículo")
-    print("2. Ver vehículos")
-    print("3. Registrar mantenimiento")
-    print("4. Ver historial")
-    print("5. Editar vehículo")
-    print("6. Eliminar vehículo")
-    print("7. Salir")
+    print("1. Registrar vehículo.")
+    print("2. Ver vehículos.")
+    print("3. Registrar mantenimiento.")
+    print("4. Ver historial.")
+    print("5. Ver gasto total.")
+    print("6. Editar vehículo.")
+    print("7. Eliminar vehículo.")
+    print("8. Salir.")
 
 def edit_vehicle():
     """
@@ -197,6 +198,39 @@ def show_maintenance_history():
     except ValueError:
         print("Debes introducir un número válido.")
 
+def show_total_cost():
+    """
+    Muestra el gasto total en mantenimientos de un vehículo.
+    """
+
+    if not vehicles:
+        print("\nNo hay vehículos registrados.")
+        return
+
+    show_vehicles()
+
+    try:
+        vehicle_number = int(input("\nSelecciona el vehículo: "))
+        index = vehicle_number - 1
+
+        if index < 0 or index >= len(vehicles):
+            print("Número de vehículo no válido.")
+            return
+
+        vehicle = vehicles[index]
+
+        total_cost = 0
+
+        for maintenance in vehicle.maintenances:
+            total_cost += maintenance.cost
+
+        print(f"\n===== Gasto total =====")
+        print(f"{vehicle.brand} {vehicle.model}")
+        print(f"Gasto acumulado: {total_cost:.2f} €")
+
+    except ValueError:
+        print("Debes introducir un número válido.")
+
 def main():
     while True:
         show_menu()
@@ -211,10 +245,12 @@ def main():
         elif option == "4":
             show_maintenance_history()
         elif option == "5":
-            edit_vehicle()
+            show_total_cost()
         elif option == "6":
-            delete_vehicle()
+            edit_vehicle()
         elif option == "7":
+            delete_vehicle()
+        elif option == "8":
             print("Saliendo de AutoCare...")
             break
         else:
