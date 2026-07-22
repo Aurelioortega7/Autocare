@@ -73,14 +73,17 @@ def delete_vehicle():
 
 def show_menu():
     print("\n===== AutoCare =====")
-    print("1. Registrar vehículo.")
-    print("2. Ver vehículos.")
-    print("3. Registrar mantenimiento.")
-    print("4. Ver historial.")
-    print("5. Ver gasto total.")
-    print("6. Editar vehículo.")
-    print("7. Eliminar vehículo.")
-    print("8. Salir.")
+    print("1. Registrar vehículo")
+    print("2. Ver vehículos")
+    print("3. Editar vehículo")
+    print("4. Eliminar vehículo")
+    print("----------------------------")
+    print("5. Registrar mantenimiento")
+    print("6. Ver historial de mantenimientos")
+    print("7. Editar mantenimiento")
+    print("8. Ver gasto total")
+    print("----------------------------")
+    print("9. Salir")
 
 def edit_vehicle():
     """
@@ -231,6 +234,62 @@ def show_total_cost():
     except ValueError:
         print("Debes introducir un número válido.")
 
+def edit_maintenance():
+    """
+    Permite editar un mantenimiento registrado de un vehículo.
+    """
+
+    if not vehicles:
+        print("\nNo hay vehículos registrados.")
+        return
+
+    show_vehicles()
+
+    try:
+        vehicle_number = int(input("\nSelecciona el vehículo: "))
+        vehicle_index = vehicle_number - 1
+
+        if vehicle_index < 0 or vehicle_index >= len(vehicles):
+            print("Número de vehículo no válido.")
+            return
+
+        vehicle = vehicles[vehicle_index]
+
+        if not vehicle.maintenances:
+            print("\nEste vehículo no tiene mantenimientos registrados.")
+            return
+
+        print(f"\n===== Mantenimientos de {vehicle.brand} {vehicle.model} =====")
+
+        for i, maintenance in enumerate(vehicle.maintenances, start=1):
+            print(f"\nMantenimiento {i}")
+            print(f"Tipo: {maintenance.maintenance_type}")
+            print(f"Fecha: {maintenance.date}")
+            print(f"Kilómetros: {maintenance.kilometers} km")
+            print(f"Coste: {maintenance.cost:.2f} €")
+
+        maintenance_number = int(input("\nSelecciona el mantenimiento a editar: "))
+        maintenance_index = maintenance_number - 1
+
+        if maintenance_index < 0 or maintenance_index >= len(vehicle.maintenances):
+            print("Número de mantenimiento no válido.")
+            return
+
+        maintenance = vehicle.maintenances[maintenance_index]
+
+        print("\n===== Editar mantenimiento =====")
+
+        maintenance.maintenance_type = input("Nuevo tipo: ")
+        maintenance.date = input("Nueva fecha (dd/mm/aaaa): ")
+        maintenance.kilometers = int(input("Nuevos kilómetros: "))
+        maintenance.cost = float(input("Nuevo coste (€): "))
+        maintenance.notes = input("Nuevas observaciones: ")
+
+        print("\nMantenimiento actualizado correctamente.")
+
+    except ValueError:
+        print("Debes introducir un valor válido.")
+
 def main():
     while True:
         show_menu()
@@ -238,23 +297,34 @@ def main():
 
         if option == "1":
             register_vehicle()
+
         elif option == "2":
             show_vehicles()
+
         elif option == "3":
-            register_maintenance()
-        elif option == "4":
-            show_maintenance_history()
-        elif option == "5":
-            show_total_cost()
-        elif option == "6":
             edit_vehicle()
-        elif option == "7":
+
+        elif option == "4":
             delete_vehicle()
+
+        elif option == "5":
+            register_maintenance()
+
+        elif option == "6":
+            show_maintenance_history()
+
+        elif option == "7":
+            edit_maintenance()
+
         elif option == "8":
+            show_total_cost()
+
+        elif option == "9":
             print("Saliendo de AutoCare...")
             break
+
         else:
-            print("Opción no válida. Inténtalo de nuevo.")
+            print("Opción no válida.")
 
 
 if __name__ == "__main__":
