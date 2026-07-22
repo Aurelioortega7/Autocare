@@ -7,3 +7,5 @@ class Vehicle:
         self.year = year
         self.license_plate = license_plate
         self.kilometers = kilometers
+
+        self.maintenances = []
