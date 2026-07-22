@@ -76,9 +76,43 @@ def show_menu():
     print("2. Ver vehículos")
     print("3. Registrar mantenimiento")
     print("4. Ver historial")
-    print("5. Eliminar vehículo")
-    print("6. Salir")
+    print("5. Editar vehículo")
+    print("6. Eliminar vehículo")
+    print("7. Salir")
 
+def edit_vehicle():
+    """
+    Permite editar los datos de un vehículo registrado.
+    """
+
+    if not vehicles:
+        print("\nNo hay vehículos registrados.")
+        return
+
+    show_vehicles()
+
+    try:
+        vehicle_number = int(input("\nIntroduce el número del vehículo a editar: "))
+        index = vehicle_number - 1
+
+        if index < 0 or index >= len(vehicles):
+            print("Número de vehículo no válido.")
+            return
+
+        vehicle = vehicles[index]
+
+        print("\n===== Editar vehículo =====")
+
+        vehicle.brand = input("Nueva marca: ")
+        vehicle.model = input("Nuevo modelo: ")
+        vehicle.year = int(input("Nuevo año: "))
+        vehicle.license_plate = input("Nueva matrícula: ")
+        vehicle.kilometers = int(input("Nuevos kilómetros: "))
+
+        print("\nVehículo actualizado correctamente.")
+
+    except ValueError:
+        print("Debes introducir un número válido.")
 
 def main():
     while True:
@@ -94,9 +128,11 @@ def main():
         elif option == "4":
             print("Has elegido ver historial")
         elif option == "5":
-            delete_vehicle()
+            edit_vehicle()
         elif option == "6":
-            print("Saliendo de Autocare...")
+            delete_vehicle()
+        elif option == "7":
+            print("Saliendo de AutoCare...")
             break
         else:
             print("Opción no válida. Inténtalo de nuevo.")
