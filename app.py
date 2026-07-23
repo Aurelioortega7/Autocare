@@ -63,11 +63,11 @@ def show_vehicles():
 
     for index, vehicle in enumerate(vehicles, start=1):
         print(f"\nVehículo {index}")
-        print(f"Marca: {vehicle[1]}")
-        print(f"Modelo: {vehicle[2]}")
-        print(f"Año: {vehicle[3]}")
-        print(f"Matrícula: {vehicle[4]}")
-        print(f"Kilómetros: {vehicle[5]} km")
+        print(f"Marca: {vehicle['brand']}")
+        print(f"Modelo: {vehicle['model']}")
+        print(f"Año: {vehicle['year']}")
+        print(f"Matrícula: {vehicle['license_plate']}")
+        print(f"Kilómetros: {vehicle['kilometers']} km")
 
 def delete_vehicle():
     """
@@ -92,9 +92,9 @@ def delete_vehicle():
 
         vehicle = vehicles[index]
 
-        vehicle_id = vehicle[0]
-        brand = vehicle[1]
-        model = vehicle[2]
+        vehicle_id = vehicle["id"]
+        brand = vehicle["brand"]
+        model = vehicle["model"]
 
         delete_vehicle_db(vehicle_id)
 
@@ -147,12 +147,12 @@ def edit_vehicle():
 
         vehicle = vehicles[index]
 
-        vehicle_id = vehicle[0]
-        brand = vehicle[1]
-        model = vehicle[2]
-        year = vehicle[3]
-        license_plate = vehicle[4]
-        kilometers = vehicle[5]
+        vehicle_id = vehicle["id"]
+        brand = vehicle["brand"]
+        model = vehicle["model"]
+        year = vehicle["year"]
+        license_plate = vehicle["license_plate"]
+        kilometers = vehicle["kilometers"]
 
         print("\n===== Editar vehículo =====")
 
@@ -475,11 +475,11 @@ def search_vehicle_by_license_plate():
         return
 
     print("\n===== Vehículo encontrado =====")
-    print(f"Marca: {vehicle[1]}")
-    print(f"Modelo: {vehicle[2]}")
-    print(f"Año: {vehicle[3]}")
-    print(f"Matrícula: {vehicle[4]}")
-    print(f"Kilómetros: {vehicle[5]} km")
+    print(f"Marca: {vehicle['brand']}")
+    print(f"Modelo: {vehicle['model']}")
+    print(f"Año: {vehicle['year']}")
+    print(f"Matrícula: {vehicle['license_plate']}")
+    print(f"Kilómetros: {vehicle['kilometers']} km")
 
 def show_statistics():
     """

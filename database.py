@@ -7,7 +7,11 @@ def get_connection():
     """
     Devuelve una conexión a la base de datos.
     """
-    return sqlite3.connect(DATABASE_NAME)
+
+    connection = sqlite3.connect(DATABASE_NAME)
+    connection.row_factory = sqlite3.Row
+
+    return connection
 
 def initialize_database():
     """
