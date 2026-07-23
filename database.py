@@ -178,7 +178,14 @@ def get_vehicle_by_license_plate(license_plate):
 
     return vehicle
 
-def add_maintenance(vehicle_id, maintenance):
+def add_maintenance(
+    vehicle_id,
+    maintenance_type,
+    date,
+    kilometers,
+    cost,
+    notes
+):
     """
     Guarda un mantenimiento en la base de datos.
     """
