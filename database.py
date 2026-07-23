@@ -171,3 +171,112 @@ def get_vehicle_by_license_plate(license_plate):
     connection.close()
 
     return vehicle
+
+def add_maintenance(vehicle_id, maintenance):
+    """
+    Guarda un mantenimiento en la base de datos.
+    """
+
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        INSERT INTO maintenances (
+            vehicle_id,
+            maintenance_type,
+            date,
+            kilometers,
+            cost,
+            notes
+        )
+        VALUES (?, ?, ?, ?, ?, ?)
+    """, (
+        vehicle_id,
+        maintenance.maintenance_type,
+        maintenance.date,
+        maintenance.kilometers,
+        maintenance.cost,
+        maintenance.notes
+    ))
+
+    connection.commit()
+    connection.close()
+
+def get_maintenances_by_vehicle(vehicle_id):
+    """
+    Devuelve todos los mantenimientos de un vehículo.
+    """
+
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        SELECT
+            id,
+            maintenance_type,
+            date,
+            kilometers,
+            cost,
+            notes
+        FROM maintenances
+        WHERE vehicle_id = ?
+        ORDER BY kilometers DESC
+    """, (vehicle_id,))
+
+    maintenances = cursor.fetchall()
+
+    connection.close()
+
+    return maintenances
+
+def update_maintenance(
+    maintenance_id,
+    maintenance_type,
+    date,
+    kilometers,
+    cost,
+    notes
+):
+    """
+    Actualiza un mantenimiento.
+    """
+
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        UPDATE maintenances
+        SET
+            maintenance_type = ?,
+            date = ?,
+            kilometers = ?,
+            cost = ?,
+            notes = ?
+        WHERE id = ?
+    """, (
+        maintenance_type,
+        date,
+        kilometers,
+        cost,
+        notes,
+        maintenance_id
+    ))
+
+    connection.commit()
+    connection.close()
+
+def delete_maintenance_db(maintenance_id):
+    """
+    Elimina un mantenimiento de la base de datos.
+    """
+
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        DELETE FROM maintenances
+        WHERE id = ?
+    """, (maintenance_id,))
+
+    connection.commit()
+    connection.close()

@@ -7,7 +7,11 @@ from database import (
     get_all_vehicles,
     update_vehicle,
     delete_vehicle_db,
-    get_vehicle_by_license_plate
+    get_vehicle_by_license_plate,
+    add_maintenance,
+    get_maintenances_by_vehicle,
+    update_maintenance,
+    delete_maintenance_db
 )
 
 initialize_database()
@@ -199,6 +203,8 @@ def register_maintenance():
     Registra un mantenimiento para un vehículo.
     """
 
+    vehicles = get_all_vehicles()
+
     if not vehicles:
         print("\nNo hay vehículos registrados.")
         return
@@ -214,6 +220,7 @@ def register_maintenance():
             return
 
         vehicle = vehicles[index]
+        vehicle_id = vehicle["id"]
 
         print("\n===== Registrar mantenimiento =====")
 
@@ -243,14 +250,7 @@ def register_maintenance():
             notes
         )
 
-        vehicle.maintenances.append(maintenance)
-
-        print("\nMantenimiento registrado correctamente.")
-
-    except ValueError:
-        print("Debes introducir un valor válido.")
-
-        vehicle.maintenances.append(maintenance)
+        add_maintenance(vehicle_id, maintenance)
 
         print("\nMantenimiento registrado correctamente.")
 
@@ -261,6 +261,8 @@ def show_maintenance_history():
     """
     Muestra el historial de mantenimientos de un vehículo.
     """
+
+    vehicles = get_all_vehicles()
 
     if not vehicles:
         print("\nNo hay vehículos registrados.")
@@ -277,23 +279,27 @@ def show_maintenance_history():
             return
 
         vehicle = vehicles[index]
+        vehicle_id = vehicle["id"]
 
-        if not vehicle.maintenances:
+        maintenances = get_maintenances_by_vehicle(vehicle_id)
+
+        if not maintenances:
             print("\nEste vehículo no tiene mantenimientos registrados.")
             return
 
-        print(f"\n===== Historial de {vehicle.brand} {vehicle.model} =====")
+        print(f"\n===== Historial de {vehicle['brand']} {vehicle['model']} =====")
 
-        for i, maintenance in enumerate(vehicle.maintenances, start=1):
+        for i, maintenance in enumerate(maintenances, start=1):
             print(f"\nMantenimiento {i}")
-            print(f"Tipo: {maintenance.maintenance_type}")
-            print(f"Fecha: {maintenance.date}")
-            print(f"Kilómetros: {maintenance.kilometers} km")
-            print(f"Coste: {maintenance.cost:.2f} €")
-            print(f"Observaciones: {maintenance.notes}")
+            print(f"Tipo: {maintenance['maintenance_type']}")
+            print(f"Fecha: {maintenance['date']}")
+            print(f"Kilómetros: {maintenance['kilometers']} km")
+            print(f"Coste: {maintenance['cost']:.2f} €")
+            print(f"Observaciones: {maintenance['notes']}")
 
     except ValueError:
         print("Debes introducir un número válido.")
+
 
 def show_total_cost():
     """
@@ -333,6 +339,8 @@ def edit_maintenance():
     Permite editar un mantenimiento registrado de un vehículo.
     """
 
+    vehicles = get_all_vehicles()
+
     if not vehicles:
         print("\nNo hay vehículos registrados.")
         return
@@ -348,39 +356,50 @@ def edit_maintenance():
             return
 
         vehicle = vehicles[vehicle_index]
+        vehicle_id = vehicle["id"]
 
-        if not vehicle.maintenances:
+        maintenances = get_maintenances_by_vehicle(vehicle_id)
+
+        if not maintenances:
             print("\nEste vehículo no tiene mantenimientos registrados.")
             return
 
-        print(f"\n===== Mantenimientos de {vehicle.brand} {vehicle.model} =====")
+        print(f"\n===== Mantenimientos de {vehicle['brand']} {vehicle['model']} =====")
 
-        for i, maintenance in enumerate(vehicle.maintenances, start=1):
+        for i, maintenance in enumerate(maintenances, start=1):
             print(f"\nMantenimiento {i}")
-            print(f"Tipo: {maintenance.maintenance_type}")
-            print(f"Fecha: {maintenance.date}")
-            print(f"Kilómetros: {maintenance.kilometers} km")
-            print(f"Coste: {maintenance.cost:.2f} €")
+            print(f"Tipo: {maintenance['maintenance_type']}")
+            print(f"Fecha: {maintenance['date']}")
+            print(f"Kilómetros: {maintenance['kilometers']} km")
+            print(f"Coste: {maintenance['cost']:.2f} €")
 
         maintenance_number = int(input("\nSelecciona el mantenimiento a editar: "))
         maintenance_index = maintenance_number - 1
 
-        if maintenance_index < 0 or maintenance_index >= len(vehicle.maintenances):
+        if maintenance_index < 0 or maintenance_index >= len(maintenances):
             print("Número de mantenimiento no válido.")
             return
 
-        maintenance = vehicle.maintenances[maintenance_index]
+        maintenance = maintenances[maintenance_index]
+
+        maintenance_id = maintenance["id"]
+        maintenance_type = maintenance["maintenance_type"]
+        date = maintenance["date"]
+        kilometers = maintenance["kilometers"]
+        cost = maintenance["cost"]
+        notes = maintenance["notes"]
 
         print("\n===== Editar mantenimiento =====")
 
         print("\nTipos de mantenimiento:")
-        for i, maintenance_type in enumerate(MAINTENANCE_TYPES, start=1):
-            print(f"{i}. {maintenance_type}")
 
-        current_type = MAINTENANCE_TYPES.index(maintenance.maintenance_type) + 1
+        for i, m_type in enumerate(MAINTENANCE_TYPES, start=1):
+            print(f"{i}. {m_type}")
+
+        current_type = MAINTENANCE_TYPES.index(maintenance_type) + 1
 
         option = input(
-            f"\nSelecciona un tipo [{current_type} - {maintenance.maintenance_type}]: "
+            f"\nSelecciona un tipo [{current_type} - {maintenance_type}]: "
         )
 
         if option != "":
@@ -390,23 +409,32 @@ def edit_maintenance():
                 print("Opción no válida.")
                 return
 
-            maintenance.maintenance_type = MAINTENANCE_TYPES[option - 1]
+            maintenance_type = MAINTENANCE_TYPES[option - 1]
 
-        new_date = input(f"Nueva fecha [{maintenance.date}]: ")
+        new_date = input(f"Nueva fecha [{date}]: ")
         if new_date != "":
-            maintenance.date = new_date
+            date = new_date
 
-        new_kilometers = input(f"Nuevos kilómetros [{maintenance.kilometers}]: ")
+        new_kilometers = input(f"Nuevos kilómetros [{kilometers}]: ")
         if new_kilometers != "":
-            maintenance.kilometers = int(new_kilometers)
+            kilometers = int(new_kilometers)
 
-        new_cost = input(f"Nuevo coste (€) [{maintenance.cost}]: ")
+        new_cost = input(f"Nuevo coste (€) [{cost}]: ")
         if new_cost != "":
-            maintenance.cost = float(new_cost)
+            cost = float(new_cost)
 
-        new_notes = input(f"Nuevas observaciones [{maintenance.notes}]: ")
+        new_notes = input(f"Nuevas observaciones [{notes}]: ")
         if new_notes != "":
-            maintenance.notes = new_notes
+            notes = new_notes
+
+        update_maintenance(
+            maintenance_id,
+            maintenance_type,
+            date,
+            kilometers,
+            cost,
+            notes
+        )
 
         print("\nMantenimiento actualizado correctamente.")
 
@@ -418,6 +446,11 @@ def delete_maintenance():
     Elimina un mantenimiento de un vehículo.
     """
 
+    vehicles = get_all_vehicles()
+
+    print(vehicles)
+    print(len(vehicles))
+
     if not vehicles:
         print("\nNo hay vehículos registrados.")
         return
@@ -433,30 +466,38 @@ def delete_maintenance():
             return
 
         vehicle = vehicles[vehicle_index]
+        vehicle_id = vehicle["id"]
 
-        if not vehicle.maintenances:
+        maintenances = get_maintenances_by_vehicle(vehicle_id)
+
+        if not maintenances:
             print("\nEste vehículo no tiene mantenimientos registrados.")
             return
 
-        print(f"\n===== Mantenimientos de {vehicle.brand} {vehicle.model} =====")
+        print(f"\n===== Mantenimientos de {vehicle['brand']} {vehicle['model']} =====")
 
-        for i, maintenance in enumerate(vehicle.maintenances, start=1):
+        for i, maintenance in enumerate(maintenances, start=1):
             print(f"\nMantenimiento {i}")
-            print(f"Tipo: {maintenance.maintenance_type}")
-            print(f"Fecha: {maintenance.date}")
-            print(f"Kilómetros: {maintenance.kilometers} km")
-            print(f"Coste: {maintenance.cost:.2f} €")
+            print(f"Tipo: {maintenance['maintenance_type']}")
+            print(f"Fecha: {maintenance['date']}")
+            print(f"Kilómetros: {maintenance['kilometers']} km")
+            print(f"Coste: {maintenance['cost']:.2f} €")
 
         maintenance_number = int(input("\nSelecciona el mantenimiento a eliminar: "))
         maintenance_index = maintenance_number - 1
 
-        if maintenance_index < 0 or maintenance_index >= len(vehicle.maintenances):
+        if maintenance_index < 0 or maintenance_index >= len(maintenances):
             print("Número de mantenimiento no válido.")
             return
 
-        deleted_maintenance = vehicle.maintenances.pop(maintenance_index)
+        maintenance = maintenances[maintenance_index]
 
-        print(f"\nSe ha eliminado el mantenimiento '{deleted_maintenance.maintenance_type}' correctamente.")
+        delete_maintenance_db(maintenance["id"])
+
+        print(
+            f"\nSe ha eliminado el mantenimiento "
+            f"'{maintenance['maintenance_type']}' correctamente."
+        )
 
     except ValueError:
         print("Debes introducir un valor válido.")
