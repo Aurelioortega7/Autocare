@@ -1,6 +1,4 @@
 from datetime import datetime, timedelta
-from models.vehicle import Vehicle
-from models.maintenance import Maintenance
 from database import (
     initialize_database,
     add_vehicle,
@@ -16,7 +14,7 @@ from database import (
 
 initialize_database()
 
-vehicles = []
+
 MAINTENANCE_TYPES = [
     "Cambio de aceite",
     "ITV",
@@ -40,15 +38,13 @@ def register_vehicle():
     license_plate = input("Matrícula: ")
     kilometers = int(input("Kilómetros: "))
 
-    vehicle = Vehicle(
+    add_vehicle(
         brand,
         model,
         year,
         license_plate,
         kilometers
     )
-
-    add_vehicle(vehicle)
 
     print("\n Vehículo registrado correctamente.")
 
@@ -242,15 +238,14 @@ def register_maintenance():
         cost = float(input("Coste (€): "))
         notes = input("Observaciones: ")
 
-        maintenance = Maintenance(
+        add_maintenance(
+            vehicle_id,
             maintenance_type,
             date,
             kilometers,
             cost,
             notes
-        )
-
-        add_maintenance(vehicle_id, maintenance)
+            )
 
         print("\nMantenimiento registrado correctamente.")
 
@@ -306,6 +301,8 @@ def show_total_cost():
     Muestra el gasto total en mantenimientos de un vehículo.
     """
 
+    vehicles = get_all_vehicles()
+
     if not vehicles:
         print("\nNo hay vehículos registrados.")
         return
@@ -322,13 +319,15 @@ def show_total_cost():
 
         vehicle = vehicles[index]
 
+        maintenances = get_maintenances_by_vehicle(vehicle["id"])
+
         total_cost = 0
 
-        for maintenance in vehicle.maintenances:
-            total_cost += maintenance.cost
+        for maintenance in maintenances:
+            total_cost += maintenance["cost"]
 
-        print(f"\n===== Gasto total =====")
-        print(f"{vehicle.brand} {vehicle.model}")
+        print("\n===== Gasto total =====")
+        print(f"{vehicle['brand']} {vehicle['model']}")
         print(f"Gasto acumulado: {total_cost:.2f} €")
 
     except ValueError:
@@ -527,6 +526,8 @@ def show_statistics():
     Muestra estadísticas generales de AutoCare.
     """
 
+    vehicles = get_all_vehicles()
+
     if not vehicles:
         print("\nNo hay vehículos registrados.")
         return
@@ -543,18 +544,20 @@ def show_statistics():
 
     for vehicle in vehicles:
 
-        maintenances = len(vehicle.maintenances)
-        total_maintenances += maintenances
+        maintenances = get_maintenances_by_vehicle(vehicle["id"])
+
+        num_maintenances = len(maintenances)
+        total_maintenances += num_maintenances
 
         vehicle_cost = 0
 
-        for maintenance in vehicle.maintenances:
-            vehicle_cost += maintenance.cost
+        for maintenance in maintenances:
+            vehicle_cost += maintenance["cost"]
 
         total_cost += vehicle_cost
 
-        if maintenances > max_maintenances:
-            max_maintenances = maintenances
+        if num_maintenances > max_maintenances:
+            max_maintenances = num_maintenances
             vehicle_with_most_maintenances = vehicle
 
         if vehicle_cost > highest_cost:
@@ -572,21 +575,23 @@ def show_statistics():
     if vehicle_with_most_maintenances:
         print(
             f"Vehículo con más mantenimientos: "
-            f"{vehicle_with_most_maintenances.brand} "
-            f"{vehicle_with_most_maintenances.model}"
+            f"{vehicle_with_most_maintenances['brand']} "
+            f"{vehicle_with_most_maintenances['model']}"
         )
 
     if vehicle_with_highest_cost:
         print(
             f"Vehículo con mayor gasto: "
-            f"{vehicle_with_highest_cost.brand} "
-            f"{vehicle_with_highest_cost.model}"
+            f"{vehicle_with_highest_cost['brand']} "
+            f"{vehicle_with_highest_cost['model']}"
         )
 
 def show_vehicle_statistics():
     """
     Muestra estadísticas de un vehículo.
     """
+
+    vehicles = get_all_vehicles()
 
     if not vehicles:
         print("\nNo hay vehículos registrados.")
@@ -605,12 +610,14 @@ def show_vehicle_statistics():
 
         vehicle = vehicles[vehicle_index]
 
+        maintenances = get_maintenances_by_vehicle(vehicle["id"])
+
         total_cost = 0
 
-        for maintenance in vehicle.maintenances:
-            total_cost += maintenance.cost
+        for maintenance in maintenances:
+            total_cost += maintenance["cost"]
 
-        total_maintenances = len(vehicle.maintenances)
+        total_maintenances = len(maintenances)
 
         average_cost = 0
 
@@ -618,22 +625,22 @@ def show_vehicle_statistics():
             average_cost = total_cost / total_maintenances
 
         print("\n===== Estadísticas del vehículo =====")
-        print(f"Marca: {vehicle.brand}")
-        print(f"Modelo: {vehicle.model}")
-        print(f"Año: {vehicle.year}")
-        print(f"Matrícula: {vehicle.license_plate}")
-        print(f"Kilómetros: {vehicle.kilometers} km")
+        print(f"Marca: {vehicle['brand']}")
+        print(f"Modelo: {vehicle['model']}")
+        print(f"Año: {vehicle['year']}")
+        print(f"Matrícula: {vehicle['license_plate']}")
+        print(f"Kilómetros: {vehicle['kilometers']} km")
         print(f"Mantenimientos: {total_maintenances}")
         print(f"Gasto total: {total_cost:.2f} €")
         print(f"Coste medio: {average_cost:.2f} €")
 
         if total_maintenances > 0:
-            last = vehicle.maintenances[-1]
+            last = maintenances[0]
 
             print("\nÚltimo mantenimiento")
-            print(f"Tipo: {last.maintenance_type}")
-            print(f"Fecha: {last.date}")
-            print(f"Coste: {last.cost:.2f} €")
+            print(f"Tipo: {last['maintenance_type']}")
+            print(f"Fecha: {last['date']}")
+            print(f"Coste: {last['cost']:.2f} €")
 
     except ValueError:
         print("Debes introducir un número válido.")
@@ -644,6 +651,8 @@ def oil_change_reminder():
     El aviso se genera si han pasado más de 10.000 km
     o más de un año desde el último cambio.
     """
+
+    vehicles = get_all_vehicles()
 
     if not vehicles:
         print("\nNo hay vehículos registrados.")
@@ -661,11 +670,13 @@ def oil_change_reminder():
 
         vehicle = vehicles[index]
 
+        maintenances = get_maintenances_by_vehicle(vehicle["id"])
+
         last_oil_change = None
 
         # Buscar el último cambio de aceite
-        for maintenance in reversed(vehicle.maintenances):
-            if maintenance.maintenance_type == "Cambio de aceite":
+        for maintenance in maintenances:
+            if maintenance["maintenance_type"] == "Cambio de aceite":
                 last_oil_change = maintenance
                 break
 
@@ -674,19 +685,28 @@ def oil_change_reminder():
             return
 
         # Calcular kilómetros recorridos
-        kilometers_since = vehicle.kilometers - last_oil_change.kilometers
+        kilometers_since = (
+            vehicle["kilometers"] - last_oil_change["kilometers"]
+        )
 
         # Calcular tiempo transcurrido
-        last_date = datetime.strptime(last_oil_change.date, "%d/%m/%Y")
+        last_date = datetime.strptime(
+            last_oil_change["date"],
+            "%d/%m/%Y"
+        )
+
         today = datetime.today()
 
         days_since = (today - last_date).days
 
         print("\n===== Aviso de cambio de aceite =====")
-        print(f"Vehículo: {vehicle.brand} {vehicle.model}")
-        print(f"Último cambio: {last_oil_change.date}")
-        print(f"Kilómetros del cambio: {last_oil_change.kilometers} km")
-        print(f"Kilómetros actuales: {vehicle.kilometers} km")
+        print(f"Vehículo: {vehicle['brand']} {vehicle['model']}")
+        print(f"Último cambio: {last_oil_change['date']}")
+        print(
+            f"Kilómetros del cambio: "
+            f"{last_oil_change['kilometers']} km"
+        )
+        print(f"Kilómetros actuales: {vehicle['kilometers']} km")
         print(f"Kilómetros recorridos: {kilometers_since} km")
         print(f"Días transcurridos: {days_since}")
 
@@ -722,6 +742,8 @@ def itv_reminder():
     Comprueba si la ITV está próxima a caducar o ya ha caducado.
     """
 
+    vehicles = get_all_vehicles()
+
     if not vehicles:
         print("\nNo hay vehículos registrados.")
         return
@@ -738,11 +760,13 @@ def itv_reminder():
 
         vehicle = vehicles[index]
 
+        maintenances = get_maintenances_by_vehicle(vehicle["id"])
+
         last_itv = None
 
         # Buscar la última ITV registrada
-        for maintenance in reversed(vehicle.maintenances):
-            if maintenance.maintenance_type == "ITV":
+        for maintenance in maintenances:
+            if maintenance["maintenance_type"] == "ITV":
                 last_itv = maintenance
                 break
 
@@ -750,15 +774,19 @@ def itv_reminder():
             print("\nEste vehículo no tiene ninguna ITV registrada.")
             return
 
-        last_date = datetime.strptime(last_itv.date, "%d/%m/%Y")
+        last_date = datetime.strptime(
+            last_itv["date"],
+            "%d/%m/%Y"
+        )
+
         next_itv = last_date + timedelta(days=365)
 
         today = datetime.today()
         remaining_days = (next_itv - today).days
 
         print("\n===== Aviso ITV =====")
-        print(f"Vehículo: {vehicle.brand} {vehicle.model}")
-        print(f"Última ITV: {last_itv.date}")
+        print(f"Vehículo: {vehicle['brand']} {vehicle['model']}")
+        print(f"Última ITV: {last_itv['date']}")
         print(f"Próxima ITV: {next_itv.strftime('%d/%m/%Y')}")
 
         if remaining_days < 0:
@@ -768,9 +796,9 @@ def itv_reminder():
             print(f"\nLa ITV caduca en {remaining_days} días.")
 
         else:
-            print(f"\nLa ITV está en vigor.")
+            print("\nLa ITV está en vigor.")
             print(f"Quedan {remaining_days} días.")
-            
+
     except ValueError:
         print("Debes introducir un valor válido.")
 

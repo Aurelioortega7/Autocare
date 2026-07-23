@@ -48,7 +48,13 @@ def initialize_database():
     connection.close()
     
 
-def add_vehicle(vehicle):
+def add_vehicle(
+    brand,
+    model,
+    year,
+    license_plate,
+    kilometers
+):
     """
     Guarda un vehículo en la base de datos.
     """
@@ -66,11 +72,11 @@ def add_vehicle(vehicle):
         )
         VALUES (?, ?, ?, ?, ?)
     """, (
-        vehicle.brand,
-        vehicle.model,
-        vehicle.year,
-        vehicle.license_plate,
-        vehicle.kilometers
+        brand,
+        model,
+        year,
+        license_plate,
+        kilometers
     ))
 
     connection.commit()
@@ -192,11 +198,11 @@ def add_maintenance(vehicle_id, maintenance):
         VALUES (?, ?, ?, ?, ?, ?)
     """, (
         vehicle_id,
-        maintenance.maintenance_type,
-        maintenance.date,
-        maintenance.kilometers,
-        maintenance.cost,
-        maintenance.notes
+        maintenance_type,
+        date,
+        kilometers,
+        cost,
+        notes
     ))
 
     connection.commit()
@@ -220,7 +226,7 @@ def get_maintenances_by_vehicle(vehicle_id):
             notes
         FROM maintenances
         WHERE vehicle_id = ?
-        ORDER BY kilometers DESC
+        ORDER BY kilometers DESC, id DESC
     """, (vehicle_id,))
 
     maintenances = cursor.fetchall()
