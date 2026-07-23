@@ -40,6 +40,130 @@ def initialize_database():
             FOREIGN KEY (vehicle_id) REFERENCES vehicles(id)
         )
     """)
+    connection.commit()
+    connection.close()
+    
+
+def add_vehicle(vehicle):
+    """
+    Guarda un vehículo en la base de datos.
+    """
+
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        INSERT INTO vehicles (
+            brand,
+            model,
+            year,
+            license_plate,
+            kilometers
+        )
+        VALUES (?, ?, ?, ?, ?)
+    """, (
+        vehicle.brand,
+        vehicle.model,
+        vehicle.year,
+        vehicle.license_plate,
+        vehicle.kilometers
+    ))
 
     connection.commit()
     connection.close()
+
+def get_all_vehicles():
+    """
+    Devuelve todos los vehículos de la base de datos.
+    """
+
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        SELECT
+            id,
+            brand,
+            model,
+            year,
+            license_plate,
+            kilometers
+        FROM vehicles
+    """)
+
+    vehicles = cursor.fetchall()
+
+    connection.close()
+
+    return vehicles
+
+def update_vehicle(vehicle_id, brand, model, year, license_plate, kilometers):
+    """
+    Actualiza un vehículo de la base de datos.
+    """
+
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        UPDATE vehicles
+        SET
+            brand = ?,
+            model = ?,
+            year = ?,
+            license_plate = ?,
+            kilometers = ?
+        WHERE id = ?
+    """, (
+        brand,
+        model,
+        year,
+        license_plate,
+        kilometers,
+        vehicle_id
+    ))
+
+    connection.commit()
+    connection.close()
+
+def delete_vehicle_db(vehicle_id):
+    """
+    Elimina un vehículo de la base de datos.
+    """
+
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        DELETE FROM vehicles
+        WHERE id = ?
+    """, (vehicle_id,))
+
+    connection.commit()
+    connection.close()
+
+def get_vehicle_by_license_plate(license_plate):
+    """
+    Busca un vehículo por su matrícula.
+    """
+
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        SELECT
+            id,
+            brand,
+            model,
+            year,
+            license_plate,
+            kilometers
+        FROM vehicles
+        WHERE license_plate = ?
+    """, (license_plate,))
+
+    vehicle = cursor.fetchone()
+
+    connection.close()
+
+    return vehicle

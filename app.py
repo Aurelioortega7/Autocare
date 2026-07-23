@@ -1,7 +1,14 @@
 from datetime import datetime, timedelta
 from models.vehicle import Vehicle
 from models.maintenance import Maintenance
-from database import get_connection, initialize_database
+from database import (
+    initialize_database,
+    add_vehicle,
+    get_all_vehicles,
+    update_vehicle,
+    delete_vehicle_db,
+    get_vehicle_by_license_plate
+)
 
 initialize_database()
 
@@ -37,14 +44,16 @@ def register_vehicle():
         kilometers
     )
 
-    vehicles.append(vehicle)
+    add_vehicle(vehicle)
 
     print("\n Vehículo registrado correctamente.")
 
 def show_vehicles():
     """
-    Muestra todos los vehículos registrados durante la ejecución del programa.
+    Muestra todos los vehículos registrados.
     """
+
+    vehicles = get_all_vehicles()
 
     if not vehicles:
         print("\nNo hay vehículos registrados.")
@@ -54,16 +63,18 @@ def show_vehicles():
 
     for index, vehicle in enumerate(vehicles, start=1):
         print(f"\nVehículo {index}")
-        print(f"Marca: {vehicle.brand}")
-        print(f"Modelo: {vehicle.model}")
-        print(f"Año: {vehicle.year}")
-        print(f"Matrícula: {vehicle.license_plate}")
-        print(f"Kilómetros: {vehicle.kilometers} km")
+        print(f"Marca: {vehicle[1]}")
+        print(f"Modelo: {vehicle[2]}")
+        print(f"Año: {vehicle[3]}")
+        print(f"Matrícula: {vehicle[4]}")
+        print(f"Kilómetros: {vehicle[5]} km")
 
 def delete_vehicle():
     """
-    Elimina un vehículo registrado según su número en la lista.
+    Elimina un vehículo registrado.
     """
+
+    vehicles = get_all_vehicles()
 
     if not vehicles:
         print("\nNo hay vehículos para eliminar.")
@@ -79,8 +90,15 @@ def delete_vehicle():
             print("Número de vehículo no válido.")
             return
 
-        removed_vehicle = vehicles.pop(index)
-        print(f"\nVehículo eliminado: {removed_vehicle.brand} {removed_vehicle.model}")
+        vehicle = vehicles[index]
+
+        vehicle_id = vehicle[0]
+        brand = vehicle[1]
+        model = vehicle[2]
+
+        delete_vehicle_db(vehicle_id)
+
+        print(f"\nVehículo eliminado: {brand} {model}")
 
     except ValueError:
         print("Debes introducir un número válido.")
@@ -111,6 +129,8 @@ def edit_vehicle():
     Permite editar los datos de un vehículo registrado.
     """
 
+    vehicles = get_all_vehicles()
+
     if not vehicles:
         print("\nNo hay vehículos registrados.")
         return
@@ -127,27 +147,47 @@ def edit_vehicle():
 
         vehicle = vehicles[index]
 
+        vehicle_id = vehicle[0]
+        brand = vehicle[1]
+        model = vehicle[2]
+        year = vehicle[3]
+        license_plate = vehicle[4]
+        kilometers = vehicle[5]
+
         print("\n===== Editar vehículo =====")
 
-        new_brand = input(f"Nueva marca [{vehicle.brand}]: ")
-        if new_brand != "":
-            vehicle.brand = new_brand
+        new_brand = input(f"Nueva marca [{brand}]: ")
+        if new_brand == "":
+            new_brand = brand
 
-        new_model = input(f"Nuevo modelo [{vehicle.model}]: ")
-        if new_model != "":
-            vehicle.model = new_model
+        new_model = input(f"Nuevo modelo [{model}]: ")
+        if new_model == "":
+            new_model = model
 
-        new_year = input(f"Nuevo año [{vehicle.year}]: ")
-        if new_year != "":
-            vehicle.year = int(new_year)
+        new_year = input(f"Nuevo año [{year}]: ")
+        if new_year == "":
+            new_year = year
+        else:
+            new_year = int(new_year)
 
-        new_license_plate = input(f"Nueva matrícula [{vehicle.license_plate}]: ")
-        if new_license_plate != "":
-            vehicle.license_plate = new_license_plate
+        new_license_plate = input(f"Nueva matrícula [{license_plate}]: ")
+        if new_license_plate == "":
+            new_license_plate = license_plate
 
-        new_kilometers = input(f"Nuevos kilómetros [{vehicle.kilometers}]: ")
-        if new_kilometers != "":
-            vehicle.kilometers = int(new_kilometers)
+        new_kilometers = input(f"Nuevos kilómetros [{kilometers}]: ")
+        if new_kilometers == "":
+            new_kilometers = kilometers
+        else:
+            new_kilometers = int(new_kilometers)
+
+        update_vehicle(
+            vehicle_id,
+            new_brand,
+            new_model,
+            new_year,
+            new_license_plate,
+            new_kilometers
+        )
 
         print("\nVehículo actualizado correctamente.")
 
@@ -426,26 +466,20 @@ def search_vehicle_by_license_plate():
     Busca un vehículo por su matrícula.
     """
 
-    if not vehicles:
-        print("\nNo hay vehículos registrados.")
-        return
-
     license_plate = input("\nIntroduce la matrícula: ").strip().upper()
 
-    for vehicle in vehicles:
-        if vehicle.license_plate.upper() == license_plate:
+    vehicle = get_vehicle_by_license_plate(license_plate)
 
-            print("\n===== Vehículo encontrado =====")
-            print(f"Marca: {vehicle.brand}")
-            print(f"Modelo: {vehicle.model}")
-            print(f"Año: {vehicle.year}")
-            print(f"Matrícula: {vehicle.license_plate}")
-            print(f"Kilómetros: {vehicle.kilometers} km")
-            print(f"Mantenimientos registrados: {len(vehicle.maintenances)}")
+    if vehicle is None:
+        print("\nNo se ha encontrado ningún vehículo con esa matrícula.")
+        return
 
-            return
-
-    print("\nNo se ha encontrado ningún vehículo con esa matrícula.")
+    print("\n===== Vehículo encontrado =====")
+    print(f"Marca: {vehicle[1]}")
+    print(f"Modelo: {vehicle[2]}")
+    print(f"Año: {vehicle[3]}")
+    print(f"Matrícula: {vehicle[4]}")
+    print(f"Kilómetros: {vehicle[5]} km")
 
 def show_statistics():
     """
