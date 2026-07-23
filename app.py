@@ -1,6 +1,9 @@
 from datetime import datetime, timedelta
 from models.vehicle import Vehicle
 from models.maintenance import Maintenance
+from database import get_connection, initialize_database
+
+initialize_database()
 
 vehicles = []
 MAINTENANCE_TYPES = [
