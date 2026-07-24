@@ -498,32 +498,78 @@ def edit_maintenance():
 
         current_type = MAINTENANCE_TYPES.index(maintenance_type) + 1
 
-        option = input(
-            f"\nSelecciona un tipo [{current_type} - {maintenance_type}]: "
-        )
+        while True:
+            option = input(
+                f"\nSelecciona un tipo [{current_type} - {maintenance_type}]: "
+            ).strip()
 
-        if option != "":
-            option = int(option)
+            if option == "":
+                break
 
-            if option < 1 or option > len(MAINTENANCE_TYPES):
+            try:
+                option = int(option)
+
+                if 1 <= option <= len(MAINTENANCE_TYPES):
+                    maintenance_type = MAINTENANCE_TYPES[option - 1]
+                    break
+
                 print("Opción no válida.")
-                return
 
-            maintenance_type = MAINTENANCE_TYPES[option - 1]
+            except ValueError:
+                print("Debes introducir un número válido.")
 
-        new_date = input(f"Nueva fecha [{date}]: ")
-        if new_date != "":
-            date = new_date
+        while True:
+            new_date = input(f"Nueva fecha [{date}]: ").strip()
 
-        new_kilometers = input(f"Nuevos kilómetros [{kilometers}]: ")
-        if new_kilometers != "":
-            kilometers = int(new_kilometers)
+            if new_date == "":
+                break
 
-        new_cost = input(f"Nuevo coste (€) [{cost}]: ")
-        if new_cost != "":
-            cost = float(new_cost)
+            if validate_date(new_date):
+                date = new_date
+                break
 
-        new_notes = input(f"Nuevas observaciones [{notes}]: ")
+            print("La fecha no es válida o es posterior a la fecha actual.")
+
+        while True:
+            new_kilometers = input(
+                f"Nuevos kilómetros [{kilometers}]: "
+            ).strip()
+
+            if new_kilometers == "":
+                break
+
+            try:
+                new_kilometers = int(new_kilometers)
+
+                if validate_kilometers(new_kilometers):
+                    kilometers = new_kilometers
+                    break
+
+                print("Los kilómetros no pueden ser negativos.")
+
+            except ValueError:
+                print("Debes introducir un número válido.")
+
+        while True:
+            new_cost = input(f"Nuevo coste (€) [{cost}]: ").strip()
+
+            if new_cost == "":
+                break
+
+            try:
+                new_cost = float(new_cost)
+
+                if validate_cost(new_cost):
+                    cost = new_cost
+                    break
+
+                print("El coste no puede ser negativo.")
+
+            except ValueError:
+                print("Debes introducir un coste válido.")
+
+        new_notes = input(f"Nuevas observaciones [{notes}]: ").strip()
+
         if new_notes != "":
             notes = new_notes
 
