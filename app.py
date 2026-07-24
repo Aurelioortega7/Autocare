@@ -14,7 +14,9 @@ from database import (
 from validators import (
     validate_license_plate, 
     validate_year,
-    validate_kilometers
+    validate_kilometers,
+    validate_date,
+    validate_cost
 )
 
 initialize_database()
@@ -267,10 +269,39 @@ def register_maintenance():
 
         maintenance_type = MAINTENANCE_TYPES[option - 1]
 
-        date = input("Fecha (dd/mm/aaaa): ")
-        kilometers = int(input("Kilómetros: "))
-        cost = float(input("Coste (€): "))
-        notes = input("Observaciones: ")
+        while True:
+            date = input("Fecha (dd/mm/aaaa): ").strip()
+
+            if validate_date(date):
+                break
+
+            print("La fecha no es válida. Debe tener el formato dd/mm/aaaa.")
+
+        while True:
+            try:
+                kilometers = int(input("Kilómetros: "))
+
+                if validate_kilometers(kilometers):
+                    break
+
+                print("Los kilómetros no pueden ser negativos.")
+
+            except ValueError:
+                print("Debes introducir un número válido.")
+
+        while True:
+            try:
+                cost = float(input("Coste (€): "))
+
+                if validate_cost(cost):
+                    break
+
+                print("El coste no puede ser negativo.")
+
+            except ValueError:
+                print("Debes introducir un coste válido.")
+
+        notes = input("Observaciones: ").strip()
 
         add_maintenance(
             vehicle_id,
@@ -279,7 +310,7 @@ def register_maintenance():
             kilometers,
             cost,
             notes
-            )
+        )
 
         print("\nMantenimiento registrado correctamente.")
 
