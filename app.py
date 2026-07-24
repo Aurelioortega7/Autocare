@@ -12,6 +12,7 @@ from database import (
     update_maintenance,
     delete_maintenance_db
 )
+
 from validators import (
     validate_license_plate, 
     validate_year,
@@ -19,6 +20,8 @@ from validators import (
     validate_date,
     validate_cost
 )
+
+ITV_VALIDITY_DAYS = 365
 
 initialize_database()
 
@@ -1063,25 +1066,35 @@ def itv_reminder():
             "%d/%m/%Y"
         )
 
-        next_itv = last_date + timedelta(days=365)
+        next_itv = last_date + timedelta(days=ITV_VALIDITY_DAYS)
 
         today = datetime.today()
+
+        days_since = (today - last_date).days
         remaining_days = (next_itv - today).days
 
-        print("\n===== Aviso ITV =====")
+        print("\n===== Estado ITV =====")
         print(f"Vehículo: {vehicle['brand']} {vehicle['model']}")
         print(f"Última ITV: {last_itv['date']}")
+        print(f"Días desde la última ITV: {days_since}")
         print(f"Próxima ITV: {next_itv.strftime('%d/%m/%Y')}")
 
+        print("\nEstado:")
+
         if remaining_days < 0:
-            print(f"\nLa ITV ha caducado hace {-remaining_days} días.")
+            print("ITV CADUCADA.")
+            print(f"Caducó hace {-remaining_days} días.")
 
         elif remaining_days <= 30:
-            print(f"\nLa ITV caduca en {remaining_days} días.")
+            print("ITV próxima a caducar.")
+            print(f"Caduca en {remaining_days} días.")
 
         else:
-            print("\nLa ITV está en vigor.")
-            print(f"Quedan {remaining_days} días.")
+            print("ITV en vigor.")
+            print(
+                f"Quedan {remaining_days} días "
+                "para la próxima inspección."
+            )
 
     except ValueError:
         print("Debes introducir un valor válido.")
