@@ -347,10 +347,17 @@ def register_maintenance():
             try:
                 kilometers = int(input("Kilómetros: "))
 
-                if validate_kilometers(kilometers):
-                    break
+                if not validate_kilometers(kilometers):
+                    print("Los kilómetros no pueden ser negativos.")
+                    continue
 
-                print("Los kilómetros no pueden ser negativos.")
+                if kilometers > vehicle["kilometers"]:
+                    print(
+                        "Los kilómetros del mantenimiento no pueden "
+                        "superar los kilómetros actuales del vehículo."
+                    )
+                    continue
+                break
 
             except ValueError:
                 print("Debes introducir un número válido.")
@@ -571,11 +578,19 @@ def edit_maintenance():
             try:
                 new_kilometers = int(new_kilometers)
 
-                if validate_kilometers(new_kilometers):
-                    kilometers = new_kilometers
-                    break
+                if not validate_kilometers(new_kilometers):
+                    print("Los kilómetros no pueden ser negativos.")
+                    continue
 
-                print("Los kilómetros no pueden ser negativos.")
+                if new_kilometers > vehicle["kilometers"]:
+                    print(
+                        "Los kilómetros del mantenimiento no pueden "
+                        "superar los kilómetros actuales del vehículo."
+                    )
+                    continue
+
+                kilometers = new_kilometers
+                break
 
             except ValueError:
                 print("Debes introducir un número válido.")
