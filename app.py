@@ -11,6 +11,11 @@ from database import (
     update_maintenance,
     delete_maintenance_db
 )
+from validators import (
+    validate_license_plate, 
+    validate_year,
+    validate_kilometers
+)
 
 initialize_database()
 
@@ -27,16 +32,45 @@ MAINTENANCE_TYPES = [
 
 def register_vehicle():
     """
-    Solicita al usuario los datos de un vehículo y crea un objeto Vehicle.
+    Solicita al usuario los datos de un vehículo.
     """
 
     print("\n===== Registrar vehículo =====")
 
-    brand = input("Marca: ")
-    model = input("Modelo: ")
-    year = int(input("Año: "))
-    license_plate = input("Matrícula: ")
-    kilometers = int(input("Kilómetros: "))
+    brand = input("Marca: ").strip().upper()
+    model = input("Modelo: ").strip().upper()
+
+    while True:
+        try:
+            year = int(input("Año: "))
+
+            if validate_year(year):
+                break
+
+            print(f"El año debe estar entre 1900 y {datetime.now().year}.")
+
+        except ValueError:
+            print("Debes introducir un año válido.")
+
+    while True:
+        license_plate = input("Matrícula: ").strip().upper()
+
+        if validate_license_plate(license_plate):
+            break
+
+        print("Matrícula no válida. Debe tener el formato 1234ABC.")
+
+    while True:
+        try:
+            kilometers = int(input("Kilómetros: "))
+
+            if validate_kilometers(kilometers):
+                break
+
+            print("Los kilómetros no pueden ser negativos.")
+
+        except ValueError:
+            print("Debes introducir un número válido.")
 
     add_vehicle(
         brand,
@@ -46,7 +80,7 @@ def register_vehicle():
         kilometers
     )
 
-    print("\n Vehículo registrado correctamente.")
+    print("\nVehículo registrado correctamente.")
 
 def show_vehicles():
     """
