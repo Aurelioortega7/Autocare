@@ -192,29 +192,65 @@ def edit_vehicle():
 
         print("\n===== Editar vehículo =====")
 
-        new_brand = input(f"Nueva marca [{brand}]: ")
+        new_brand = input(f"Nueva marca [{brand}]: ").strip().upper()
         if new_brand == "":
             new_brand = brand
 
-        new_model = input(f"Nuevo modelo [{model}]: ")
+        new_model = input(f"Nuevo modelo [{model}]: ").strip().upper()
         if new_model == "":
             new_model = model
 
-        new_year = input(f"Nuevo año [{year}]: ")
-        if new_year == "":
-            new_year = year
-        else:
-            new_year = int(new_year)
+        while True:
+            new_year = input(f"Nuevo año [{year}]: ").strip()
 
-        new_license_plate = input(f"Nueva matrícula [{license_plate}]: ")
-        if new_license_plate == "":
-            new_license_plate = license_plate
+            if new_year == "":
+                new_year = year
+                break
 
-        new_kilometers = input(f"Nuevos kilómetros [{kilometers}]: ")
-        if new_kilometers == "":
-            new_kilometers = kilometers
-        else:
-            new_kilometers = int(new_kilometers)
+            try:
+                new_year = int(new_year)
+
+                if validate_year(new_year):
+                    break
+
+                print(f"El año debe estar entre 1900 y {datetime.now().year}.")
+
+            except ValueError:
+                print("Debes introducir un año válido.")
+
+        while True:
+            new_license_plate = input(
+                f"Nueva matrícula [{license_plate}]: "
+            ).strip().upper()
+
+            if new_license_plate == "":
+                new_license_plate = license_plate
+                break
+
+            if validate_license_plate(new_license_plate):
+                break
+
+            print("Matrícula no válida. Debe tener el formato 1234ABC.")
+
+        while True:
+            new_kilometers = input(
+                f"Nuevos kilómetros [{kilometers}]: "
+            ).strip()
+
+            if new_kilometers == "":
+                new_kilometers = kilometers
+                break
+
+            try:
+                new_kilometers = int(new_kilometers)
+
+                if validate_kilometers(new_kilometers):
+                    break
+
+                print("Los kilómetros no pueden ser negativos.")
+
+            except ValueError:
+                print("Debes introducir un número válido.")
 
         update_vehicle(
             vehicle_id,
