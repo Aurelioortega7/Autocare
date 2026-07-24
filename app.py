@@ -1,3 +1,4 @@
+import sqlite3
 from datetime import datetime, timedelta
 from database import (
     initialize_database,
@@ -74,15 +75,19 @@ def register_vehicle():
         except ValueError:
             print("Debes introducir un número válido.")
 
-    add_vehicle(
-        brand,
-        model,
-        year,
-        license_plate,
-        kilometers
-    )
+    try:
+        add_vehicle(
+            brand,
+            model,
+            year,
+            license_plate,
+            kilometers
+        )
 
-    print("\nVehículo registrado correctamente.")
+        print("\nVehículo registrado correctamente.")
+
+    except sqlite3.IntegrityError:
+        print("\nYa existe un vehículo con esa matrícula.")
 
 def show_vehicles():
     """
@@ -252,16 +257,20 @@ def edit_vehicle():
             except ValueError:
                 print("Debes introducir un número válido.")
 
-        update_vehicle(
-            vehicle_id,
-            new_brand,
-            new_model,
-            new_year,
-            new_license_plate,
-            new_kilometers
-        )
+        try:
+            update_vehicle(
+                vehicle_id,
+                new_brand,
+                new_model,
+                new_year,
+                new_license_plate,
+                new_kilometers
+            )
 
-        print("\nVehículo actualizado correctamente.")
+            print("\nVehículo actualizado correctamente.")
+
+        except sqlite3.IntegrityError:
+            print("\nYa existe un vehículo con esa matrícula.")
 
     except ValueError:
         print("Debes introducir un número válido.")
