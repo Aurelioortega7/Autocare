@@ -137,6 +137,20 @@ def delete_vehicle():
         brand = vehicle["brand"]
         model = vehicle["model"]
 
+        while True:
+            confirmation = input(
+                f"\n¿Seguro que quieres eliminar {brand} {model}? (S/N): "
+            ).strip().upper()
+
+            if confirmation in ("S", "N"):
+                break
+
+            print("Introduce únicamente S o N.")
+
+        if confirmation == "N":
+            print("\nOperación cancelada.")
+            return
+
         delete_vehicle_db(vehicle_id)
 
         print(f"\nVehículo eliminado: {brand} {model}")
@@ -603,9 +617,6 @@ def delete_maintenance():
 
     vehicles = get_all_vehicles()
 
-    print(vehicles)
-    print(len(vehicles))
-
     if not vehicles:
         print("\nNo hay vehículos registrados.")
         return
@@ -646,6 +657,21 @@ def delete_maintenance():
             return
 
         maintenance = maintenances[maintenance_index]
+
+        while True:
+            confirmation = input(
+                f"\n¿Seguro que quieres eliminar el mantenimiento "
+                f"'{maintenance['maintenance_type']}'? (S/N): "
+            ).strip().upper()
+
+            if confirmation in ("S", "N"):
+                break
+
+            print("Introduce únicamente S o N.")
+
+        if confirmation == "N":
+            print("\nOperación cancelada.")
+            return
 
         delete_maintenance_db(maintenance["id"])
 
