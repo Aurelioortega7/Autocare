@@ -17,10 +17,7 @@ def validate_kilometers(kilometers):
 
 
 def validate_date(date):
-    """
-    Comprueba que la fecha tenga el formato dd/mm/aaaa
-    y que no sea una fecha futura.
-    """
+
     try:
         maintenance_date = datetime.strptime(date, "%d/%m/%Y")
         today = datetime.today()
@@ -32,7 +29,5 @@ def validate_date(date):
 
 
 def validate_cost(cost):
-    """
-    Comprueba que el coste sea válido.
-    """
+
     return cost >= 0

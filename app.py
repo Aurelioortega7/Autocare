@@ -21,20 +21,13 @@ from validators import (
     validate_cost
 )
 
-ITV_VALIDITY_DAYS = 365
+from constants import (
+    MAINTENANCE_TYPES,
+    MAINTENANCE_LIMITS,
+    ITV_VALIDITY_DAYS
+)
 
 initialize_database()
-
-
-MAINTENANCE_TYPES = [
-    "Cambio de aceite",
-    "ITV",
-    "Frenos",
-    "Neumáticos",
-    "Batería",
-    "Filtros",
-    "Otro"
-]
 
 def register_vehicle():
     """
@@ -966,9 +959,7 @@ def maintenance_reminder(
         print("Debes introducir un valor válido.")
 
 def oil_change_reminder():
-    """
-    Comprueba el estado del cambio de aceite.
-    """
+    limits = MAINTENANCE_LIMITS["Cambio de aceite"]
 
     maintenance_reminder(
         maintenance_type="Cambio de aceite",
@@ -981,9 +972,7 @@ def oil_change_reminder():
     )
 
 def brakes_reminder():
-    """
-    Comprueba el estado de los frenos.
-    """
+    limits = MAINTENANCE_LIMITS["Frenos"]
 
     maintenance_reminder(
         maintenance_type="Frenos",
@@ -996,9 +985,7 @@ def brakes_reminder():
     )
 
 def tires_reminder():
-    """
-    Comprueba el estado de los neumáticos.
-    """
+    limits = MAINTENANCE_LIMITS["Neumáticos"]
 
     maintenance_reminder(
         maintenance_type="Neumáticos",
@@ -1011,9 +998,7 @@ def tires_reminder():
     )
 
 def battery_reminder():
-    """
-    Comprueba el estado de la batería.
-    """
+    limits = MAINTENANCE_LIMITS["Batería"]
 
     maintenance_reminder(
         maintenance_type="Batería",
@@ -1025,9 +1010,7 @@ def battery_reminder():
     )
 
 def filters_reminder():
-    """
-    Comprueba el estado de los filtros.
-    """
+    limits = MAINTENANCE_LIMITS["Filtros"]
 
     maintenance_reminder(
         maintenance_type="Filtros",
