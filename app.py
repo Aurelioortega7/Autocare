@@ -176,8 +176,12 @@ def show_menu():
     print("----------------------------")
     print("12. Estado cambio de aceite")
     print("13. Estado ITV")
+    print("14. Estado frenos")
+    print("15. Estado neumáticos")
+    print("16. Estado batería")
+    print("17. Estado filtros")
     print("----------------------------")
-    print("14. Salir")
+    print("18. Salir")
 
 def edit_vehicle():
     """
@@ -827,11 +831,17 @@ def show_vehicle_statistics():
     except ValueError:
         print("Debes introducir un número válido.")
 
-def oil_change_reminder():
+def maintenance_reminder(
+    maintenance_type,
+    title,
+    warning_message,
+    urgent_message,
+    missing_message,
+    max_km=None,
+    max_days=None
+):
     """
-    Comprueba si un vehículo necesita un cambio de aceite.
-    El aviso se genera si han pasado más de 10.000 km
-    o más de un año desde el último cambio.
+    Comprueba el estado de un tipo de mantenimiento.
     """
 
     vehicles = get_all_vehicles()
@@ -854,26 +864,24 @@ def oil_change_reminder():
 
         maintenances = get_maintenances_by_vehicle(vehicle["id"])
 
-        last_oil_change = None
+        last_maintenance = None
 
-        # Buscar el último cambio de aceite
+        # Buscar el último mantenimiento del tipo indicado
         for maintenance in maintenances:
-            if maintenance["maintenance_type"] == "Cambio de aceite":
-                last_oil_change = maintenance
+            if maintenance["maintenance_type"] == maintenance_type:
+                last_maintenance = maintenance
                 break
 
-        if last_oil_change is None:
-            print("\nEste vehículo no tiene registrado ningún cambio de aceite.")
+        if last_maintenance is None:
+            print(f"\n{missing_message}")
             return
 
-        # Calcular kilómetros recorridos
         kilometers_since = (
-            vehicle["kilometers"] - last_oil_change["kilometers"]
+            vehicle["kilometers"] - last_maintenance["kilometers"]
         )
 
-        # Calcular tiempo transcurrido
         last_date = datetime.strptime(
-            last_oil_change["date"],
+            last_maintenance["date"],
             "%d/%m/%Y"
         )
 
@@ -881,12 +889,12 @@ def oil_change_reminder():
 
         days_since = (today - last_date).days
 
-        print("\n===== Aviso de cambio de aceite =====")
+        print(f"\n===== Estado de {title} =====")
         print(f"Vehículo: {vehicle['brand']} {vehicle['model']}")
-        print(f"Último cambio: {last_oil_change['date']}")
+        print(f"Último mantenimiento: {last_maintenance['date']}")
         print(
-            f"Kilómetros del cambio: "
-            f"{last_oil_change['kilometers']} km"
+            f"Kilómetros del mantenimiento: "
+            f"{last_maintenance['kilometers']} km"
         )
         print(f"Kilómetros actuales: {vehicle['kilometers']} km")
         print(f"Kilómetros recorridos: {kilometers_since} km")
@@ -894,30 +902,124 @@ def oil_change_reminder():
 
         print("\nEstado:")
 
-        if kilometers_since >= 10000 and days_since >= 365:
-            print("Cambio de aceite URGENTE.")
+        km_expired = (
+            max_km is not None and
+            kilometers_since >= max_km
+        )
+
+        days_expired = (
+            max_days is not None and
+            days_since >= max_days
+        )
+
+        if km_expired and days_expired:
+            print(urgent_message)
             print("Motivos:")
-            print("- Han pasado más de 10.000 km.")
-            print("- Ha pasado más de un año.")
 
-        elif kilometers_since >= 10000:
-            print("Debes cambiar el aceite.")
-            print("Motivo: Han pasado más de 10.000 km.")
+            if max_km is not None:
+                print(f"- Han pasado más de {max_km:,} km.".replace(",", "."))
 
-        elif days_since >= 365:
-            print("Debes cambiar el aceite.")
-            print("Motivo: Ha pasado más de un año.")
+            if max_days is not None:
+                print(f"- Han pasado más de {max_days} días.")
+
+        elif km_expired:
+            print(warning_message)
+            print(
+                f"Motivo: Han pasado más de "
+                f"{max_km:,} km.".replace(",", ".")
+            )
+
+        elif days_expired:
+            print(warning_message)
+            print(f"Motivo: Han pasado más de {max_days} días.")
 
         else:
-            remaining_km = 10000 - kilometers_since
-            remaining_days = 365 - days_since
+            print(f"{title} en buen estado.")
 
-            print("El cambio de aceite no es necesario todavía.")
-            print(f"Quedan aproximadamente {remaining_km} km.")
-            print(f"Quedan aproximadamente {remaining_days} días.")
+            if max_km is not None:
+                remaining_km = max_km - kilometers_since
+                print(f"Quedan aproximadamente {remaining_km} km.")
+
+            if max_days is not None:
+                remaining_days = max_days - days_since
+                print(f"Quedan aproximadamente {remaining_days} días.")
 
     except ValueError:
         print("Debes introducir un valor válido.")
+
+def oil_change_reminder():
+    """
+    Comprueba el estado del cambio de aceite.
+    """
+
+    maintenance_reminder(
+        maintenance_type="Cambio de aceite",
+        title="Cambio de aceite",
+        warning_message="Debes cambiar el aceite.",
+        urgent_message="Cambio de aceite URGENTE.",
+        missing_message="Este vehículo no tiene registrado ningún cambio de aceite.",
+        max_km=10000,
+        max_days=365
+    )
+
+def brakes_reminder():
+    """
+    Comprueba el estado de los frenos.
+    """
+
+    maintenance_reminder(
+        maintenance_type="Frenos",
+        title="Frenos",
+        warning_message="Debes revisar los frenos.",
+        urgent_message="Revisión de frenos URGENTE.",
+        missing_message="Este vehículo no tiene registrado ningún cambio de frenos.",
+        max_km=30000,
+        max_days=730
+    )
+
+def tires_reminder():
+    """
+    Comprueba el estado de los neumáticos.
+    """
+
+    maintenance_reminder(
+        maintenance_type="Neumáticos",
+        title="Neumáticos",
+        warning_message="Debes revisar los neumáticos.",
+        urgent_message="Cambio de neumáticos URGENTE.",
+        missing_message="Este vehículo no tiene registrado ningún cambio de neumáticos.",
+        max_km=40000,
+        max_days=1825
+    )
+
+def battery_reminder():
+    """
+    Comprueba el estado de la batería.
+    """
+
+    maintenance_reminder(
+        maintenance_type="Batería",
+        title="Batería",
+        warning_message="Debes revisar la batería.",
+        urgent_message="Sustitución de batería recomendada.",
+        missing_message="Este vehículo no tiene registrado ningún cambio de batería.",
+        max_days=1825
+    )
+
+def filters_reminder():
+    """
+    Comprueba el estado de los filtros.
+    """
+
+    maintenance_reminder(
+        maintenance_type="Filtros",
+        title="Filtros",
+        warning_message="Debes cambiar los filtros.",
+        urgent_message="Cambio de filtros URGENTE.",
+        missing_message="Este vehículo no tiene registrado ningún cambio de filtros.",
+        max_km=20000,
+        max_days=365
+    )
 
 def itv_reminder():
     """
@@ -1029,6 +1131,18 @@ def main():
             itv_reminder()
 
         elif option == "14":
+            brakes_reminder()
+
+        elif option == "15":
+            tires_reminder()
+
+        elif option == "16":
+            battery_reminder()
+
+        elif option == "17":
+            filters_reminder()
+
+        elif option == "18":
             print("Saliendo de AutoCare...")
             break
 
