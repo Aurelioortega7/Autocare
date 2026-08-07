@@ -60,27 +60,31 @@ def add_vehicle(
     """
 
     connection = get_connection()
-    cursor = connection.cursor()
 
-    cursor.execute("""
-        INSERT INTO vehicles (
+    try:
+        cursor = connection.cursor()
+
+        cursor.execute("""
+            INSERT INTO vehicles (
+                brand,
+                model,
+                year,
+                license_plate,
+                kilometers
+            )
+            VALUES (?, ?, ?, ?, ?)
+        """, (
             brand,
             model,
             year,
             license_plate,
             kilometers
-        )
-        VALUES (?, ?, ?, ?, ?)
-    """, (
-        brand,
-        model,
-        year,
-        license_plate,
-        kilometers
-    ))
+        ))
 
-    connection.commit()
-    connection.close()
+        connection.commit()
+
+    finally:
+        connection.close()
 
 def get_all_vehicles():
     """
@@ -107,34 +111,45 @@ def get_all_vehicles():
 
     return vehicles
 
-def update_vehicle(vehicle_id, brand, model, year, license_plate, kilometers):
+def update_vehicle(
+    vehicle_id,
+    brand,
+    model,
+    year,
+    license_plate,
+    kilometers
+):
     """
     Actualiza un vehículo de la base de datos.
     """
 
     connection = get_connection()
-    cursor = connection.cursor()
 
-    cursor.execute("""
-        UPDATE vehicles
-        SET
-            brand = ?,
-            model = ?,
-            year = ?,
-            license_plate = ?,
-            kilometers = ?
-        WHERE id = ?
-    """, (
-        brand,
-        model,
-        year,
-        license_plate,
-        kilometers,
-        vehicle_id
-    ))
+    try:
+        cursor = connection.cursor()
 
-    connection.commit()
-    connection.close()
+        cursor.execute("""
+            UPDATE vehicles
+            SET
+                brand = ?,
+                model = ?,
+                year = ?,
+                license_plate = ?,
+                kilometers = ?
+            WHERE id = ?
+        """, (
+            brand,
+            model,
+            year,
+            license_plate,
+            kilometers,
+            vehicle_id
+        ))
+
+        connection.commit()
+
+    finally:
+        connection.close()
 
 def delete_vehicle_db(vehicle_id):
     """
@@ -293,3 +308,29 @@ def delete_maintenance_db(maintenance_id):
 
     connection.commit()
     connection.close()
+
+def get_vehicle_by_id(vehicle_id):
+    """
+    Busca un vehículo por su identificador.
+    """
+
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        SELECT
+            id,
+            brand,
+            model,
+            year,
+            license_plate,
+            kilometers
+        FROM vehicles
+        WHERE id = ?
+    """, (vehicle_id,))
+
+    vehicle = cursor.fetchone()
+
+    connection.close()
+
+    return vehicle
