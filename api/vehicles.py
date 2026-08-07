@@ -5,7 +5,8 @@ from database import (
     add_vehicle,
     get_all_vehicles,
     get_vehicle_by_id,
-    update_vehicle
+    update_vehicle,
+    delete_vehicle
 )
 
 from schemas.vehicle import VehicleCreate
@@ -105,3 +106,23 @@ def update_vehicle_endpoint(
             status_code=409,
             detail="Ya existe un vehículo con esa matrícula."
         )
+
+@router.delete(
+    "/vehicles/{vehicle_id}",
+    summary="Elimina un vehículo"
+)
+def delete_vehicle_endpoint(vehicle_id: int):
+
+    vehicle = get_vehicle_by_id(vehicle_id)
+
+    if vehicle is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Vehículo no encontrado."
+        )
+
+    delete_vehicle(vehicle_id)
+
+    return {
+        "message": "Vehículo eliminado correctamente"
+    }

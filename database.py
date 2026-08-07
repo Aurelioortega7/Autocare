@@ -334,3 +334,23 @@ def get_vehicle_by_id(vehicle_id):
     connection.close()
 
     return vehicle
+
+def delete_vehicle(vehicle_id):
+    """
+    Elimina un vehículo de la base de datos.
+    """
+
+    connection = get_connection()
+
+    try:
+        cursor = connection.cursor()
+
+        cursor.execute("""
+            DELETE FROM vehicles
+            WHERE id = ?
+        """, (vehicle_id,))
+
+        connection.commit()
+
+    finally:
+        connection.close()
