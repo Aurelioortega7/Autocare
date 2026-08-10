@@ -44,3 +44,36 @@ def create_maintenance(maintenance: MaintenanceCreate):
     return {
         "message": "Mantenimiento añadido correctamente"
     }
+
+@router.put(
+    "/maintenances/{maintenance_id}",
+    summary="Actualiza un mantenimiento"
+)
+def update_maintenance_endpoint(
+    maintenance_id: int,
+    maintenance: MaintenanceCreate
+):
+    update_maintenance(
+        maintenance_id,
+        maintenance.maintenance_type,
+        maintenance.date,
+        maintenance.kilometers,
+        maintenance.cost,
+        maintenance.notes
+    )
+
+    return {
+        "message": "Mantenimiento actualizado correctamente"
+    }
+
+@router.delete(
+    "/maintenances/{maintenance_id}",
+    summary="Elimina un mantenimiento"
+)
+def delete_maintenance_endpoint(maintenance_id: int):
+
+    delete_maintenance_db(maintenance_id)
+
+    return {
+        "message": "Mantenimiento eliminado correctamente"
+    }
