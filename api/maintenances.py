@@ -1,10 +1,11 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 
 from database import (
     get_maintenances_by_vehicle,
     add_maintenance,
     update_maintenance,
-    delete_maintenance_db
+    delete_maintenance_db,
+    get_vehicle_by_id
 )
 
 from schemas.maintenance import MaintenanceCreate
@@ -21,6 +22,14 @@ router = APIRouter(
 )
 def get_maintenances(vehicle_id: int):
 
+    vehicle = get_vehicle_by_id(vehicle_id)
+
+    if vehicle is None:
+        raise HTTPException(
+            status_code=404,
+            detail="El vehículo no existe."
+        )
+
     maintenances = get_maintenances_by_vehicle(vehicle_id)
 
     return [dict(maintenance) for maintenance in maintenances]
@@ -31,6 +40,14 @@ def get_maintenances(vehicle_id: int):
     summary="Añade un nuevo mantenimiento"
 )
 def create_maintenance(maintenance: MaintenanceCreate):
+
+    vehicle = get_vehicle_by_id(maintenance.vehicle_id)
+
+    if vehicle is None:
+        raise HTTPException(
+            status_code=404,
+            detail="El vehículo no existe."
+        )
 
     add_maintenance(
         maintenance.vehicle_id,
@@ -53,7 +70,7 @@ def update_maintenance_endpoint(
     maintenance_id: int,
     maintenance: MaintenanceCreate
 ):
-    update_maintenance(
+    rows_updated = update_maintenance(
         maintenance_id,
         maintenance.maintenance_type,
         maintenance.date,
@@ -61,6 +78,12 @@ def update_maintenance_endpoint(
         maintenance.cost,
         maintenance.notes
     )
+
+    if rows_updated == 0:
+        raise HTTPException(
+            status_code=404,
+            detail="El mantenimiento no existe."
+        )
 
     return {
         "message": "Mantenimiento actualizado correctamente"
@@ -72,7 +95,13 @@ def update_maintenance_endpoint(
 )
 def delete_maintenance_endpoint(maintenance_id: int):
 
-    delete_maintenance_db(maintenance_id)
+    rows_deleted = delete_maintenance_db(maintenance_id)
+
+    if rows_deleted == 0:
+        raise HTTPException(
+            status_code=404,
+            detail="El mantenimiento no existe."
+        )
 
     return {
         "message": "Mantenimiento eliminado correctamente"

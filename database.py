@@ -270,28 +270,34 @@ def update_maintenance(
     """
 
     connection = get_connection()
-    cursor = connection.cursor()
 
-    cursor.execute("""
-        UPDATE maintenances
-        SET
-            maintenance_type = ?,
-            date = ?,
-            kilometers = ?,
-            cost = ?,
-            notes = ?
-        WHERE id = ?
-    """, (
-        maintenance_type,
-        date,
-        kilometers,
-        cost,
-        notes,
-        maintenance_id
-    ))
+    try:
+        cursor = connection.cursor()
 
-    connection.commit()
-    connection.close()
+        cursor.execute("""
+            UPDATE maintenances
+            SET
+                maintenance_type = ?,
+                date = ?,
+                kilometers = ?,
+                cost = ?,
+                notes = ?
+            WHERE id = ?
+        """, (
+            maintenance_type,
+            date,
+            kilometers,
+            cost,
+            notes,
+            maintenance_id
+        ))
+
+        connection.commit()
+
+        return cursor.rowcount
+
+    finally:
+        connection.close()
 
 def delete_maintenance_db(maintenance_id):
     """
@@ -299,15 +305,21 @@ def delete_maintenance_db(maintenance_id):
     """
 
     connection = get_connection()
-    cursor = connection.cursor()
 
-    cursor.execute("""
-        DELETE FROM maintenances
-        WHERE id = ?
-    """, (maintenance_id,))
+    try:
+        cursor = connection.cursor()
 
-    connection.commit()
-    connection.close()
+        cursor.execute("""
+            DELETE FROM maintenances
+            WHERE id = ?
+        """, (maintenance_id,))
+
+        connection.commit()
+
+        return cursor.rowcount
+
+    finally:
+        connection.close()
 
 def get_vehicle_by_id(vehicle_id):
     """
