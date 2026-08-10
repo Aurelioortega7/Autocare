@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 
 from api.vehicles import router as vehicles_router
+from api.maintenances import router as maintenances_router
 
 app = FastAPI(
     title="AutoCare API",
@@ -15,3 +16,4 @@ def root():
 
 
 app.include_router(vehicles_router)
+app.include_router(maintenances_router)
