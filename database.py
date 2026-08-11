@@ -1,4 +1,5 @@
 import sqlite3
+from datetime import datetime
 
 DATABASE_NAME = "database/autocare.db"
 
@@ -366,3 +367,56 @@ def delete_vehicle(vehicle_id):
 
     finally:
         connection.close()
+
+def get_maintenance_statistics(vehicle_id):
+    """
+    Devuelve las estadísticas de mantenimiento de un vehículo.
+    """
+
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        SELECT
+            date,
+            cost
+        FROM maintenances
+        WHERE vehicle_id = ?
+    """, (vehicle_id,))
+
+    maintenances = cursor.fetchall()
+
+    connection.close()
+
+    total_cost = 0
+    current_year_cost = 0
+    maintenance_count = len(maintenances)
+
+    current_year = datetime.now().year
+
+    for maintenance in maintenances:
+
+        cost = float(maintenance["cost"] or 0)
+
+        total_cost += cost
+
+        try:
+            date = datetime.strptime(
+                maintenance["date"],
+                "%d/%m/%Y"
+            )
+
+            if date.year == current_year:
+                current_year_cost += cost
+
+        except ValueError:
+            continue
+
+    monthly_average = current_year_cost / 12
+
+    return {
+        "total_cost": round(total_cost, 2),
+        "current_year_cost": round(current_year_cost, 2),
+        "monthly_average": round(monthly_average, 2),
+        "maintenance_count": maintenance_count
+    }

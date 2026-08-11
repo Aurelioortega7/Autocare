@@ -5,7 +5,8 @@ from database import (
     add_maintenance,
     update_maintenance,
     delete_maintenance_db,
-    get_vehicle_by_id
+    get_vehicle_by_id,
+    get_maintenance_statistics
 )
 
 from schemas.maintenance import MaintenanceCreate
@@ -106,3 +107,19 @@ def delete_maintenance_endpoint(maintenance_id: int):
     return {
         "message": "Mantenimiento eliminado correctamente"
     }
+
+@router.get(
+    "/maintenances/{vehicle_id}/statistics",
+    summary="Obtiene las estadísticas de mantenimiento de un vehículo"
+)
+def maintenance_statistics(vehicle_id: int):
+
+    vehicle = get_vehicle_by_id(vehicle_id)
+
+    if vehicle is None:
+        raise HTTPException(
+            status_code=404,
+            detail="El vehículo no existe."
+        )
+
+    return get_maintenance_statistics(vehicle_id)

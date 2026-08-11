@@ -4,16 +4,12 @@ const API_URL = "http://127.0.0.1:8000";
 async function loadVehicles() {
 
     const container =
-        document.getElementById(
-            "vehicles-container"
-        );
+        document.getElementById("vehicles-container");
 
     try {
 
         const response =
-            await fetch(
-                `${API_URL}/vehicles`
-            );
+            await fetch(`${API_URL}/vehicles`);
 
         if (!response.ok) {
             throw new Error();
@@ -68,33 +64,25 @@ async function loadVehicles() {
                 <div class="vehicle-actions">
 
                     <button
-                        onclick="viewMaintenances(
-                            ${vehicle.id}
-                        )"
+                        onclick="viewMaintenances(${vehicle.id})"
                     >
                         Ver mantenimientos
                     </button>
 
                     <button
-                        onclick="addMaintenance(
-                            ${vehicle.id}
-                        )"
+                        onclick="addMaintenance(${vehicle.id})"
                     >
                         Añadir mantenimiento
                     </button>
 
                     <button
-                        onclick="editVehicle(
-                            ${vehicle.id}
-                        )"
+                        onclick="editVehicle(${vehicle.id})"
                     >
                         Editar
                     </button>
 
                     <button
-                        onclick="deleteVehicle(
-                            ${vehicle.id}
-                        )"
+                        onclick="deleteVehicle(${vehicle.id})"
                     >
                         Eliminar
                     </button>
@@ -298,9 +286,7 @@ async function editVehicle(vehicleId) {
                 "edit-vehicle-form-section"
             );
 
-        section.classList.remove(
-            "hidden"
-        );
+        section.classList.remove("hidden");
 
         section.scrollIntoView({
             behavior: "smooth"
@@ -331,9 +317,7 @@ function closeEditVehicleForm() {
 
     form.reset();
 
-    section.classList.add(
-        "hidden"
-    );
+    section.classList.add("hidden");
 }
 
 
@@ -489,31 +473,55 @@ async function viewMaintenances(vehicleId) {
             return;
         }
 
-        section.classList.remove(
-            "hidden"
-        );
-
-        const vehicleTitle =
-            document.getElementById(
-                "maintenance-vehicle-title"
+        const statisticsResponse =
+            await fetch(
+                `${API_URL}/maintenances/${vehicleId}/statistics`
             );
 
-        const vehicleInfo =
-            document.getElementById(
-                "maintenance-vehicle-info"
+        const statistics =
+            await statisticsResponse.json();
+
+        if (!statisticsResponse.ok) {
+
+            alert(
+                statistics.detail ||
+                "No se pudieron obtener las estadísticas."
             );
 
-        if (vehicleTitle) {
-
-            vehicleTitle.textContent =
-                `Mantenimientos de ${vehicle.brand} ${vehicle.model}`;
+            return;
         }
 
-        if (vehicleInfo) {
+        document.getElementById(
+            "maintenance-vehicle-title"
+        ).textContent =
+            `Mantenimientos de ${vehicle.brand} ${vehicle.model}`;
 
-            vehicleInfo.textContent =
-                `Matrícula: ${vehicle.license_plate} · ${vehicle.kilometers} km`;
-        }
+        document.getElementById(
+            "maintenance-vehicle-info"
+        ).textContent =
+            `Matrícula: ${vehicle.license_plate} · ${vehicle.kilometers} km`;
+
+        document.getElementById(
+            "stat-total-cost"
+        ).textContent =
+            `${Number(statistics.total_cost).toFixed(2)} €`;
+
+        document.getElementById(
+            "stat-current-year-cost"
+        ).textContent =
+            `${Number(statistics.current_year_cost).toFixed(2)} €`;
+
+        document.getElementById(
+            "stat-monthly-average"
+        ).textContent =
+            `${Number(statistics.monthly_average).toFixed(2)} €`;
+
+        document.getElementById(
+            "stat-maintenance-count"
+        ).textContent =
+            statistics.maintenance_count;
+
+        section.classList.remove("hidden");
 
         if (maintenances.length === 0) {
 
@@ -537,9 +545,7 @@ async function viewMaintenances(vehicleId) {
             maintenance => {
 
                 const element =
-                    document.createElement(
-                        "div"
-                    );
+                    document.createElement("div");
 
                 element.className =
                     "maintenance-card";
@@ -566,7 +572,9 @@ async function viewMaintenances(vehicleId) {
 
                     <p>
                         <strong>Coste:</strong>
-                        ${maintenance.cost} €
+                        ${Number(
+                            maintenance.cost
+                        ).toFixed(2)} €
                     </p>
 
                     <p>
@@ -633,9 +641,7 @@ function addMaintenance(vehicleId) {
         "maintenance-vehicle-id"
     ).value = vehicleId;
 
-    section.classList.remove(
-        "hidden"
-    );
+    section.classList.remove("hidden");
 
     section.scrollIntoView({
         behavior: "smooth"
@@ -657,9 +663,7 @@ function closeMaintenanceForm() {
 
     form.reset();
 
-    section.classList.add(
-        "hidden"
-    );
+    section.classList.add("hidden");
 }
 
 
@@ -849,9 +853,7 @@ async function editMaintenance(
                 "edit-maintenance-form-section"
             );
 
-        section.classList.remove(
-            "hidden"
-        );
+        section.classList.remove("hidden");
 
         section.scrollIntoView({
             behavior: "smooth"
@@ -882,16 +884,12 @@ function closeEditMaintenanceForm() {
 
     form.reset();
 
-    section.classList.add(
-        "hidden"
-    );
+    section.classList.add("hidden");
 }
 
 
 document
-    .getElementById(
-        "edit-maintenance-form"
-    )
+    .getElementById("edit-maintenance-form")
     .addEventListener(
         "submit",
         async function(event) {
@@ -955,6 +953,8 @@ document
                             },
 
                             body: JSON.stringify({
+                                vehicle_id:
+                                    vehicleId,
                                 maintenance_type:
                                     maintenanceType,
                                 date: date,
@@ -1101,9 +1101,7 @@ async function deleteVehicle(
             .getElementById(
                 "maintenances-section"
             )
-            .classList.add(
-                "hidden"
-            );
+            .classList.add("hidden");
 
         loadVehicles();
 
