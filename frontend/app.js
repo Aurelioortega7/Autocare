@@ -453,6 +453,24 @@ async function viewMaintenances(vehicleId) {
 
     try {
 
+        const vehicleResponse =
+            await fetch(
+                `${API_URL}/vehicles/${vehicleId}`
+            );
+
+        const vehicle =
+            await vehicleResponse.json();
+
+        if (!vehicleResponse.ok) {
+
+            alert(
+                vehicle.detail ||
+                "No se pudo obtener el vehículo."
+            );
+
+            return;
+        }
+
         const response =
             await fetch(
                 `${API_URL}/maintenances/${vehicleId}`
@@ -475,6 +493,28 @@ async function viewMaintenances(vehicleId) {
             "hidden"
         );
 
+        const vehicleTitle =
+            document.getElementById(
+                "maintenance-vehicle-title"
+            );
+
+        const vehicleInfo =
+            document.getElementById(
+                "maintenance-vehicle-info"
+            );
+
+        if (vehicleTitle) {
+
+            vehicleTitle.textContent =
+                `Mantenimientos de ${vehicle.brand} ${vehicle.model}`;
+        }
+
+        if (vehicleInfo) {
+
+            vehicleInfo.textContent =
+                `Matrícula: ${vehicle.license_plate} · ${vehicle.kilometers} km`;
+        }
+
         if (maintenances.length === 0) {
 
             container.innerHTML = `
@@ -483,6 +523,10 @@ async function viewMaintenances(vehicleId) {
                     mantenimientos registrados.
                 </p>
             `;
+
+            section.scrollIntoView({
+                behavior: "smooth"
+            });
 
             return;
         }
