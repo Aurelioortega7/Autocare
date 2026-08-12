@@ -45,6 +45,8 @@ La aplicación web está formada por:
 
 La interfaz permite gestionar los vehículos y mantenimientos desde el navegador.
 
+La aplicación permite consultar los mantenimientos asociados a cada vehículo y visualizar sus estadísticas de gasto.
+
 ---
 
 # 🛠️ Tecnologías utilizadas
@@ -61,10 +63,3 @@ La interfaz permite gestionar los vehículos y mantenimientos desde el navegador
 - GitHub
 
 ---
-
-# ▶️ Instalación
-
-Clona el repositorio:
-
-```bash
-git clone https://github.com/Aurelioortega7/Autocare.git
